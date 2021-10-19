@@ -19,17 +19,17 @@ echo "Enter password for root user: "
 passwd root
 
 # why run this twice??
-#if ! source ./install.conf; then
-	#read -p "Please enter hostname:" hostname
+if ! source ./install.conf; then
+  read -p "Please enter hostname:" hostname
 
-	#read -p "Please enter username:" username
+  read -p "Please enter username:" username
 
 
-  #printf "hostname="$hostname"\n" >> "install.conf"
-  #printf "username="$username"\n" >> "install.conf"
-  #export hostname=$hostname
-  #export username=$username
-#fi
+  printf "hostname="$hostname"\n" >> "install.conf"
+  printf "username="$username"\n" >> "install.conf"
+  export hostname=$hostname
+  export username=$username
+fi
 
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
@@ -293,7 +293,7 @@ When=PostTransaction
 Exec=/usr/bin/mkinitcpio -P
 EOF
     pacman -S nvidia-dkms dkms --noconfirm --needed
-else if lspci | grep -E "Radeon"; then
+else if [lspci | grep -E "Radeon"]; then
     pacman -S xf86-video-amdgpu --noconfirm --needed
 else
     pacman -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils --needed --noconfirm
@@ -303,7 +303,7 @@ echo -e "\nDone!\n"
 if [ $(whoami) = "root"  ];
 then
     [ ! -d "/home/$username" ] && useradd -m -g users -G wheel -s /bin/bash $username 
-    cp -R /root/ArchMatic /home/$username/
+    cp -R /root/ArchKDE /home/$username/
     echo "--------------------------------------"
     echo "--      Set Password for $username  --"
     echo "--------------------------------------"
@@ -317,4 +317,3 @@ then
 else
 	echo "You are already a user proceed with aur installs"
 fi
-

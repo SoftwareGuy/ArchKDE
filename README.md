@@ -14,17 +14,18 @@ Note: Still working on automated Intel systems and Gaming tweaks
 
 ```
 pacman -Sy git
-git clone https://github.com/ChrisTitusTech/ArchMatic
-cd ArchMatic
+git clone https://github.com/TomiVidal99/ArchKDE
+cd ArchKDE
 ./archmatic.sh
 ```
 
 ### System Description
-This is completely automated arch install of the KDE desktop environment on arch using all the packages I use on a daily basis. 
+
+This is completely automated arch install of the KDE desktop environment on arch using all the packages I use on a daily basis.
 
 ### Troubleshooting Arch Linux
 
-__[Arch Linux Installation Guide](https://github.com/rickellis/Arch-Linux-Install-Guide)__
+**[Arch Linux Installation Guide](https://github.com/rickellis/Arch-Linux-Install-Guide)**
 
 #### No Wifi
 

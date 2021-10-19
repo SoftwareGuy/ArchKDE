@@ -46,7 +46,6 @@ PKGS=(
 'ttf-meslo' # Nerdfont package
 'ttf-roboto'
 'zoom' # video conferences
-
 )
 
 for PKG in "${PKGS[@]}"; do
@@ -65,9 +64,9 @@ tscale=oversample
 EOF
 
 export PATH=$PATH:~/.local/bin
-cp -r $HOME/ArchMatic/dotfiles/* $HOME/.config/
+cp -r $HOME/ArchKDE/dotfiles/* $HOME/.config/
 pip install konsave
-konsave -i $HOME/ArchMatic/kde.knsv
+konsave -i $HOME/ArchKDE/kde.knsv
 sleep 1
 konsave -a kde
 
