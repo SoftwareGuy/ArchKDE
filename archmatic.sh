@@ -5,3 +5,6 @@
     source /mnt/root/archKDE/install.conf
     arch-chroot /mnt /usr/bin/runuser -u $username -- /home/$username/archKDE/2-user.sh
     arch-chroot /mnt /root/archKDE/3-post-setup.sh
+
+    # copy configs
+    cp -R ./configs/* /mnt/home/$username/

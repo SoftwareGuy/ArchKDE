@@ -46,6 +46,10 @@ PKGS=(
 'ttf-meslo' # Nerdfont package
 'ttf-roboto'
 'zoom' # video conferences
+'nodejs' # node
+'npm' # npm
+'the_silver_searcher' # fzf dependency
+'octave'
 )
 
 for PKG in "${PKGS[@]}"; do
