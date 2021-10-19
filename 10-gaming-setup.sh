@@ -6,7 +6,7 @@
 #   /_/ \_\_| \__|_||_|_|  |_\__,_|\__|_\__|
 #  Arch Linux Post Install Setup and Config
 #-------------------------------------------------------------------------
-source install.conf
+source ./install.conf
 echo -e "\nInstalling Base System\n"
 
 PKGS=(

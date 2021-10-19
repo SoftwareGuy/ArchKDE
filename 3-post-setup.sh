@@ -92,6 +92,8 @@ sudo systemctl enable --now bluetooth.service
 
 echo -e "\nEnabling the cups service daemon so we can print"
 
+sudo pacman -S --noconfirm ntp
+
 systemctl enable --now cups.service
 sudo ntpd -qg
 sudo systemctl enable --now ntpd.service
