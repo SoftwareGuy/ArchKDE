@@ -20,6 +20,7 @@ passwd root
 
 # why run this twice??
 if ! source ./install.conf; then
+  echo "same as before"
   read -p "Please enter hostname:" hostname
 
   read -p "Please enter username:" username
@@ -53,7 +54,17 @@ sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 timedatectl --no-ask-password set-timezone America/Buenos_Aires
 timedatectl --no-ask-password set-ntp 1
-localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_COLLATE="" LC_TIME="en_US.UTF-8"
+
+# this command wont run, why??
+#localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_COLLATE="" LC_TIME="en_US.UTF-8"
+
+# this replaces the command above kinda. its a bit better?
+# persistant configuration
+echo "LANG=en_US.UTF-8" >> /etc/vconsole.conf
+echo "LANGUAGE=es_AR:en_US:es" >> /etc/vconsole.conf
+echo "KEYMAP=la-latin1" >> /etc/vconsole.conf
+echo "LC_TIME=es_AR.UTF-8" >> /etc/vconsole.conf
+echo "LC_COLLATE=C" >> /etc/vconsole.conf
 
 # Set keymaps
 localectl --no-ask-password set-keymap la-latin1
