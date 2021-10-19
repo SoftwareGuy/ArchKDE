@@ -18,12 +18,10 @@ echo "--------------------------------------"
 echo "Enter password for root user: "
 passwd root
 
-# why run this twice??
-if ! source ./install.conf; then
-  echo "same as before"
-  read -p "Please enter hostname:" hostname
+if ! source install.conf; then
+	read -p "Please enter hostname:" hostname
 
-  read -p "Please enter username:" username
+	read -p "Please enter username:" username
 
 
   printf "hostname="$hostname"\n" >> "install.conf"
@@ -37,6 +35,7 @@ echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
 pacman -S --noconfirm pacman-contrib curl
 pacman -S --noconfirm reflector rsync
+iso="br" # brazil mirrolist
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 
 nc=$(grep -c ^processor /proc/cpuinfo)
@@ -55,16 +54,15 @@ locale-gen
 timedatectl --no-ask-password set-timezone America/Buenos_Aires
 timedatectl --no-ask-password set-ntp 1
 
-# this command wont run, why??
+# this wont run
 #localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_COLLATE="" LC_TIME="en_US.UTF-8"
-
-# this replaces the command above kinda. its a bit better?
 # persistant configuration
 echo "LANG=en_US.UTF-8" >> /etc/vconsole.conf
 echo "LANGUAGE=es_AR:en_US:es" >> /etc/vconsole.conf
 echo "KEYMAP=la-latin1" >> /etc/vconsole.conf
 echo "LC_TIME=es_AR.UTF-8" >> /etc/vconsole.conf
 echo "LC_COLLATE=C" >> /etc/vconsole.conf
+
 
 # Set keymaps
 localectl --no-ask-password set-keymap la-latin1
@@ -245,7 +243,7 @@ PKGS=(
 'unzip'
 'usbutils'
 'vde2'
-'neovim'
+'vim'
 'virt-manager'
 'virt-viewer'
 'wget'
@@ -262,8 +260,6 @@ PKGS=(
 'zsh'
 'zsh-syntax-highlighting'
 'zsh-autosuggestions'
-'ttf-inconsolata'
-'noto-fonts-emoji'
 )
 
 for PKG in "${PKGS[@]}"; do
@@ -290,23 +286,23 @@ esac
 
 # Graphics Drivers find and install
 if lspci | grep -E "NVIDIA|GeForce"; then
-    sudo cat <<EOF >> /etc/pacman.d/hooks/nvidia.hook
-[Trigger]
-Operation=Install
-Operation=Upgrade
-Operation=Remove
-Type=Package
-Target=nvidia
+    sudo cat <<EOF > /etc/pacman.d/hooks/nvidia.hook
+    [Trigger]
+    Operation=Install
+    Operation=Upgrade
+    Operation=Remove
+    Type=Package
+    Target=nvidia
 
-[Action]
-Depends=mkinitcpio
-When=PostTransaction
-Exec=/usr/bin/mkinitcpio -P
+    [Action]
+    Depends=mkinitcpio
+    When=PostTransaction
+    Exec=/usr/bin/mkinitcpio -P
 EOF
     pacman -S nvidia-dkms dkms --noconfirm --needed
-else if [lspci | grep -E "Radeon"]; then
+elif lspci | grep -E "Radeon"; then
     pacman -S xf86-video-amdgpu --noconfirm --needed
-else
+elif lspci | grep -E "Integrated Graphics Controller"; then
     pacman -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils --needed --noconfirm
 fi
 echo -e "\nDone!\n"
@@ -314,7 +310,7 @@ echo -e "\nDone!\n"
 if [ $(whoami) = "root"  ];
 then
     [ ! -d "/home/$username" ] && useradd -m -g users -G wheel -s /bin/bash $username 
-    cp -R /root/archKDE /home/$username/
+    cp -R /root/ArchMatic /home/$username/
     echo "--------------------------------------"
     echo "--      Set Password for $username  --"
     echo "--------------------------------------"
@@ -328,3 +324,4 @@ then
 else
 	echo "You are already a user proceed with aur installs"
 fi
+
