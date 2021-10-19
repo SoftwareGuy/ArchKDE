@@ -303,7 +303,7 @@ echo -e "\nDone!\n"
 if [ $(whoami) = "root"  ];
 then
     [ ! -d "/home/$username" ] && useradd -m -g users -G wheel -s /bin/bash $username 
-    cp -R /root/ArchKDE /home/$username/
+    cp -R /root/archKDE /home/$username/
     echo "--------------------------------------"
     echo "--      Set Password for $username  --"
     echo "--------------------------------------"

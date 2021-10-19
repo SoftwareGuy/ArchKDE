@@ -7,17 +7,13 @@
 #  Arch Linux Post Install Setup and Config
 #-------------------------------------------------------------------------
 
-if ! source ./install.conf; then
-	read -p "Please enter hostname:" hostname
-
-	read -p "Please enter username:" username
-
-
-  printf "hostname="$hostname"\n" >> "install.conf"
-  printf "username="$username"\n" >> "install.conf"
-  export hostname=$hostname
-  export username=$username
-fi
+# setup hostname and username
+read -p "Please enter hostname:" hostname
+read -p "Please enter username:" username
+printf "hostname="$hostname"\n" >> "install.conf"
+printf "username="$username"\n" >> "install.conf"
+export hostname=$hostname
+export username=$username
 
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
@@ -100,7 +96,7 @@ linux /vmlinuz-linux
 initrd  /initramfs-linux.img  
 options root=${DISK}2 rw rootflags=subvol=@
 EOF
-cp -R ~/ArchKDE /mnt/root/
+cp -R ~/archKDE /mnt/root/
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 echo "--------------------------------------"
 echo "--   SYSTEM READY FOR 0-setup       --"

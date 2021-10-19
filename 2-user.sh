@@ -64,9 +64,9 @@ tscale=oversample
 EOF
 
 export PATH=$PATH:~/.local/bin
-cp -r $HOME/ArchKDE/dotfiles/* $HOME/.config/
+cp -r $HOME/archKDE/dotfiles/* $HOME/.config/
 pip install konsave
-konsave -i $HOME/ArchKDE/kde.knsv
+konsave -i $HOME/archKDE/kde.knsv
 sleep 1
 konsave -a kde
 
