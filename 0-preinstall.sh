@@ -34,50 +34,57 @@ pacman -S --noconfirm gptfdisk btrfs-progs
 echo "-------------------------------------------------"
 echo "-------select your disk to format----------------"
 echo "-------------------------------------------------"
+
 lsblk
 echo "Please enter disk to work on: (example /dev/sda)"
 read DISK
 echo "THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK"
 read -p "are you sure you want to continue (Y/N):" formatdisk
-case $formatdisk in
+case $formatdisk in 
+  y|Y|yes|Yes|YES)
 
-y|Y|yes|Yes|YES)
-echo "--------------------------------------"
-echo -e "\nFormatting disk...\n$HR"
-echo "--------------------------------------"
+    # CASE THE USER WANTS TO FORMAT THE DISK
+    echo "--------------------------------------"
+    echo -e "\nFormatting disk...\n$HR"
+    echo "--------------------------------------"
 
-# disk prep
-sgdisk -Z ${DISK} # zap all on disk
-sgdisk -a 2048 -o ${DISK} # new gpt disk 2048 alignment
+    # disk prep
+    sfdisk --delete $DISK # delete all partitions
 
-# create partitions
-sgdisk -n 1:0:+1000M ${DISK} # partition 1 (UEFI SYS), default start block, 512MB
-sgdisk -n 2:0:0     ${DISK} # partition 2 (Root), default start, remaining
 
-# set partition types
-sgdisk -t 1:ef00 ${DISK}
-sgdisk -t 2:8300 ${DISK}
+    # make filesystems
+    echo -e "\nCreating Filesystems...\n$HR"
 
-# label partitions
-sgdisk -c 1:"UEFISYS" ${DISK}
-sgdisk -c 2:"ROOT" ${DISK}
+    # only create a single partition with a MBR partition table
+    fdisk $DISK << EOF
+o
+n
+p
+1
 
-# make filesystems
-echo -e "\nCreating Filesystems...\n$HR"
 
-mkfs.vfat -F32 -n "UEFISYS" "${DISK}1"
-mkfs.btrfs -L "ROOT" "${DISK}2"
-mount -t btrfs "${DISK}2" /mnt
-btrfs subvolume create /mnt/@
-umount /mnt
-;;
+
+
+Y
+a
+w
+EOF
+
+    # just in case format the partition to linux
+    mkfs.ext4 "${DISK}1"
+
+    # mount the partition to /mnt
+    mount "${DISK}1" /mnt
+
+    ;;
+
+  *)
+    # CASE THE USER DOES NOT WANT TO FORMAT THE DISK
+    read -p "What partition should mount as root? [i.e: /dev/sda1]" mounting_partition
+    mount $mounting_partition /mnt
+    ;;
+
 esac
-
-# mount target
-mount -t btrfs -o subvol=@ "${DISK}2" /mnt
-mkdir /mnt/boot
-mkdir /mnt/boot/efi
-mount -t vfat "${DISK}1" /mnt/boot/
 
 echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
@@ -88,16 +95,16 @@ echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
 echo "--------------------------------------"
 echo "-- Bootloader Systemd Installation  --"
 echo "--------------------------------------"
-bootctl install --esp-path=/mnt/boot
-[ ! -d "/mnt/boot/loader/entries" ] && mkdir -p /mnt/boot/loader/entries
-cat <<EOF > /mnt/boot/loader/entries/arch.conf
-title Arch Linux  
-linux /vmlinuz-linux  
-initrd  /initramfs-linux.img  
-options root=${DISK}2 rw rootflags=subvol=@
-EOF
+
+
+# install grub for MBR booting instead of UEFI
+arch-chroot /mnt pacman -S --noconfirm grub
+arch-chroot /mnt grub-install --target=i386-pc --root-directory=/mnt $DISK 
+arch-chroot /mnt grub-mkconfig -o /mnt/boot/grub/grub.cfg
+
 cp -R ~/archKDE /mnt/root/
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
 echo "--------------------------------------"
 echo "--   SYSTEM READY FOR 0-setup       --"
 echo "--------------------------------------"
