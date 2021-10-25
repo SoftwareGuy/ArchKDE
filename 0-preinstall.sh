@@ -31,7 +31,8 @@ echo "Setting up console fonts ..."
 setfont ter-v22b
 
 echo "Setting up pacman mirror lists..."
-pacman -S --noconfirm reflector rsync
+# No need to reinstall this shit
+# pacman -S --noconfirm reflector rsync
 
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector -c $iso -l 5 --sort rate --save /etc/pacman.d/mirrorlist
