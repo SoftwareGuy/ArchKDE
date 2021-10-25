@@ -10,5 +10,5 @@ arch-chroot /mnt /root/bootstrap/3-post-setup.sh
 # copy configs
 cp -R ./configs/* /mnt/home/$username/
 
-umount -r /mnt
+umount -R /mnt
 echo "Done."
