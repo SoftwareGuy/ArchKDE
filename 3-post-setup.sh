@@ -92,7 +92,7 @@ systemctl enable --now earlyoom
 systemctl enable auto-cpufreq
 
 echo "Setting up Steam..."
-sudo pacman -Sy --needed steam wqy-zenhei lib32-systemd 
+sudo pacman -Sy --needed steam wqy-zenhei lib32-systemd
 
 echo "Setting up sysctl tweaks..."
 sudo cat <<EOF >> /etc/sysctl.d/10-networking.conf
