@@ -142,7 +142,7 @@ EOF
 
   *)
 	echo "Safety check: user wants out - aborted!"
-	exit
+	exit 1
 	;;
 
 esac
