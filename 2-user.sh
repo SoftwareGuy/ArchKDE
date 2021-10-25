@@ -55,8 +55,8 @@ PKGS=(
 'npm' # npm
 'the_silver_searcher' # fzf dependency
 'octave'
-'vkBasalt'
-'auto-cpufreq',
+'vkbasalt'
+'auto-cpufreq'
 'steamcmd'
 )
 
@@ -64,6 +64,7 @@ for PKG in "${PKGS[@]}"; do
     yay -S --noconfirm $PKG
 done
 
+mkdir -p /home/$(whoami)/.config/mpv
 cat <<EOF >> /home/$(whoami)/.config/mpv/mpv.conf
 vo=vdpau
 profile=opengl-hq

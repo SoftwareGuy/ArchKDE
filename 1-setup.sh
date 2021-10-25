@@ -309,6 +309,8 @@ done
 pacman -Sy --noconfirm intel-ucode amd-ucode
 
 # Graphics Drivers find and install
+mkdir /etc/pacman.d/hooks
+
 if lspci | grep -E "NVIDIA|GeForce"; then
     sudo cat <<EOF > /etc/pacman.d/hooks/nvidia.hook
     [Trigger]
@@ -334,7 +336,7 @@ echo -e "\nDone!\n"
 # WTF??
 if [ $(whoami) = "root" ];
 then
-    [ ! -d "/home/$username" ] && useradd -m -g users -G wheel -s /bin/bash $username 
+    useradd -m -g users -G wheel -s /bin/bash $username 
     echo "--------------------------------------"
     echo "User Configuration"
 	echo "--------------------------------------"
@@ -346,7 +348,7 @@ then
     cp /etc/skel/.bash_profile /home/$username/
     cp /etc/skel/.bash_logout /home/$username/
     cp /etc/skel/.bashrc /home/$username/.bashrc
-    chown -R $username:$username /home/$username
+    chown -R $username: /home/$username
     sed -n '#/home/'"$username"'/#,s#bash#zsh#' /etc/passwd
 else
 	echo "You are already a user proceed with aur installs"
