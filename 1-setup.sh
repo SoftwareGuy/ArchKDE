@@ -94,7 +94,7 @@ cat <<EOF >> /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 
-# [liquorix]
+[liquorix]
 Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 
