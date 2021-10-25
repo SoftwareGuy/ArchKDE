@@ -10,7 +10,7 @@ echo "--------------------------------------"
 echo "Installing Network..."
 echo "--------------------------------------"
 pacman -S networkmanager modemmanager usbutils usb_modeswitch dhclient --noconfirm --needed
-systemctl enable --now NetworkManager
+systemctl enable NetworkManager
 
 echo "--------------------------------------"
 echo "User configuration..."
@@ -18,7 +18,7 @@ echo "--------------------------------------"
 echo "Enter password for root user: "
 passwd root
 
-if ! source install.conf; then
+if ! source /root/bootstrap/install.conf; then
 	echo "WARNING: Could not source install.conf... What happened?"
 	
 	read -p "What is the hostname of this device? " hostname
@@ -94,14 +94,17 @@ cat <<EOF >> /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 
-[liquorix]
-Server = https://liquorix.net/archlinux/$repo/$arch
+# [liquorix]
+Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 
 pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 9AE4078033F8024D
 pacman-key --lsign-key 9AE4078033F8024D
 
 pacman -Sy --noconfirm
+
+# echo "NOTE: Liquorix kernel repository is commented out in /etc/pacman.conf."
+# echo "Enable it manually if you want it (the package key should be imported by now)."
 
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
@@ -293,27 +296,17 @@ PKGS=(
 'zsh-autosuggestions'
 )
 
+echo "Safety sync..."
+pacman -Sy 
+
+echo "Start installing packages..."
+
 for PKG in "${PKGS[@]}"; do
     echo "INSTALLING: ${PKG}"
     sudo pacman -S "$PKG" --noconfirm --needed
 done
 
-#
-# determine processor type and install microcode
-# 
-proc_type=$(lscpu | awk '/Vendor ID:/ {print $3}')
-case "$proc_type" in
-	GenuineIntel)
-		print "Installing Intel microcode"
-		pacman -S --noconfirm intel-ucode
-		proc_ucode=intel-ucode.img
-		;;
-	AuthenticAMD)
-		print "Installing AMD microcode"
-		pacman -S --noconfirm amd-ucode
-		proc_ucode=amd-ucode.img
-		;;
-esac	
+pacman -Sy --noconfirm intel-ucode amd-ucode
 
 # Graphics Drivers find and install
 if lspci | grep -E "NVIDIA|GeForce"; then
