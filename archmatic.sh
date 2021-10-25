@@ -1,10 +1,14 @@
 #!/bin/bash
+echo "Beginning setup..."
+bash 0-preinstall.sh
+echo "Running setup..."
+arch-chroot /mnt /root/bootstrap/1-setup.sh
+source /mnt/root/bootstrap/install.conf
+arch-chroot /mnt /usr/bin/runuser -u $username -- /home/$username/bootstrap/2-user.sh
+arch-chroot /mnt /root/bootstrap/3-post-setup.sh
 
-    bash 0-preinstall.sh
-    arch-chroot /mnt /root/archKDE/1-setup.sh
-    source /mnt/root/archKDE/install.conf
-    arch-chroot /mnt /usr/bin/runuser -u $username -- /home/$username/archKDE/2-user.sh
-    arch-chroot /mnt /root/archKDE/3-post-setup.sh
+# copy configs
+cp -R ./configs/* /mnt/home/$username/
 
-    # copy configs
-    cp -R ./configs/* /mnt/home/$username/
+umount -r /mnt
+echo "Done."

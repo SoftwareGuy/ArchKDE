@@ -7,12 +7,13 @@
 #  Arch Linux Post Install Setup and Config
 #-------------------------------------------------------------------------
 
-echo -e "\nFINAL SETUP AND CONFIGURATION"
+echo "--------------------------------------"
+echo "Putting the finishing touches on the new install..."
+echo "--------------------------------------"
 
 # ------------------------------------------------------------------------
 
-echo -e "\nGenerating .xinitrc file"
-
+echo "Setting up X11..."
 # Generate the .xinitrc file so we can launch Awesome from the
 # terminal using the "startx" command
 cat <<EOF > ${HOME}/.xinitrc
@@ -44,58 +45,77 @@ EOF
 
 # ------------------------------------------------------------------------
 
-echo -e "\nConfiguring vconsole.conf to set a larger font for login shell"
-
-sudo cat <<EOF > /etc/vconsole.conf
-KEYMAP=la-latin1
+echo "Configuring console fonts..."
+sudo cat <<EOF >> /etc/vconsole.conf
 FONT=ter-v16b
 EOF
 
 # ------------------------------------------------------------------------
 
-echo -e "\nIncreasing file watcher count"
-
+echo "Increasing file watcher count..."
 # This prevents a "too many files" error in Visual Studio Code
 echo fs.inotify.max_user_watches=524288 | sudo tee /etc/sysctl.d/40-max-user-watches.conf && sudo sysctl --system
 
 # ------------------------------------------------------------------------
 
-echo -e "\nDisabling Pulse .esd_auth module"
-
+echo "Disabling Pulse .esd_auth module..."
 # Pulse audio loads the `esound-protocol` module, which best I can tell is rarely needed.
 # That module creates a file called `.esd_auth` in the home directory which I'd prefer to not be there. So...
 sudo sed -i 's|load-module module-esound-protocol-unix|#load-module module-esound-protocol-unix|g' /etc/pulse/default.pa
 
 # ------------------------------------------------------------------------
 
-echo -e "\nEnabling Login Display Manager"
-
+echo "Enabling SSDM..."
 sudo systemctl enable --now sddm.service
 
 # ------------------------------------------------------------------------
 
-echo -e "\nEnabling bluetooth daemon and setting it to auto-start"
-
+echo "Enabling bluetooth daemon and setting it to auto-start..."
 sudo sed -i 's|#AutoEnable=false|AutoEnable=true|g' /etc/bluetooth/main.conf
 sudo systemctl enable --now bluetooth.service
 
 # ------------------------------------------------------------------------
 
-echo -e "\nEnabling the cups service daemon so we can print"
-
+echo "Enabling the cups service daemon so we can print..."
 sudo pacman -S --noconfirm ntp
-
 systemctl enable --now cups.service
 sudo ntpd -qg
 sudo systemctl enable --now ntpd.service
 sudo systemctl disable dhcpcd.service
 sudo systemctl stop dhcpcd.service
 sudo systemctl enable --now NetworkManager.service
-echo "
-###############################################################################
-# Cleaning
-###############################################################################
-"
+
+echo "Setting up game mode..."
+systemctl --user enable gamemoded 
+systemctl --user start gamemoded
+systemctl enable --now earlyoom
+systemctl enable auto-cpufreq
+
+echo "Setting up Steam..."
+sudo pacman -Sy --needed steam wqy-zenhei lib32-systemd 
+
+echo "Setting up sysctl tweaks..."
+sudo cat <<EOF >> /etc/sysctl.d/10-networking.conf
+sysctl -w net.core.netdev_max_backlog = 16384
+sysctl -w net.core.somaxconn = 8192
+sysctl -w net.core.rmem_default = 1048576
+sysctl -w net.core.rmem_max = 16777216
+sysctl -w net.core.wmem_default = 1048576
+sysctl -w net.core.wmem_max = 16777216
+sysctl -w net.core.optmem_max = 65536
+sysctl -w net.ipv4.tcp_rmem = 4096 1048576 2097152
+sysctl -w net.ipv4.tcp_wmem = 4096 65536 16777216
+sysctl -w net.ipv4.udp_rmem_min = 8192
+sysctl -w net.ipv4.udp_wmem_min = 8192
+sysctl -w net.ipv4.tcp_fastopen = 3
+sysctl -w net.ipv4.tcp_max_syn_backlog = 8192
+sysctl -w net.ipv4.tcp_max_tw_buckets = 2000000
+sysctl -w vm.swappiness = 10
+EOF
+
+echo "--------------------------------------"
+echo "Fixing up administration privileges..."
+echo "--------------------------------------"
 # Remove no password sudo rights
 sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 # Add sudo rights
@@ -103,8 +123,10 @@ sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
 # Replace in the same state
 cd $pwd
-echo "
-###############################################################################
-# Done
-###############################################################################
-"
+
+mkinitcpio -P
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "--------------------------------------"
+echo "Done polishing the install."
+echo "--------------------------------------"

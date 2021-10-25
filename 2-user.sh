@@ -7,7 +7,9 @@
 #  Arch Linux Post Install Setup and Config
 #-------------------------------------------------------------------------
 
-echo -e "\nINSTALLING AUR SOFTWARE\n"
+echo "--------------------------------------"
+echo "Installing AUR Packages..."
+echo "--------------------------------------"
 # You can solve users running this script as root with this and then doing the same for the next for statement. However I will leave this up to you.
 
 echo "CLONING: YAY"
@@ -22,13 +24,15 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $HOME/powerleve
 ln -s "$HOME/zsh/.zshrc" $HOME/.zshrc
 
 PKGS=(
-'autojump'
-'awesome-terminal-fonts'
-'brave-bin' # Brave Browser
+'ananicy-git'
+# 'autojump'
+# 'awesome-terminal-fonts'
+# 'brave-bin' # Brave Browser
 'dxvk-bin' # DXVK DirectX to Vulcan
 'github-desktop-bin' # Github Desktop sync
+'goverlay'
 'lightly-git'
-'lightlyshaders-git'
+# 'lightlyshaders-git' # Not found?
 'mangohud' # Gaming FPS Counter
 'mangohud-common'
 'nerd-fonts-fira-code'
@@ -45,11 +49,15 @@ PKGS=(
 'ttf-hack'
 'ttf-meslo' # Nerdfont package
 'ttf-roboto'
-'zoom' # video conferences
+'ttf-liberation'
+# 'zoom' # video conferences
 'nodejs' # node
 'npm' # npm
 'the_silver_searcher' # fzf dependency
 'octave'
+'vkBasalt'
+'auto-cpufreq',
+'steamcmd'
 )
 
 for PKG in "${PKGS[@]}"; do
@@ -68,11 +76,22 @@ tscale=oversample
 EOF
 
 export PATH=$PATH:~/.local/bin
-cp -r $HOME/archKDE/dotfiles/* $HOME/.config/
+cp -r $HOME/bootstrap/dotfiles/* $HOME/.config/
 pip install konsave
-konsave -i $HOME/archKDE/kde.knsv
+konsave -i $HOME/bootstrap/kde.knsv
 sleep 1
 konsave -a kde
 
-echo -e "\nDone!\n"
+echo "Installing Ungoogled Chromium..."
+curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
+echo '
+[home_ungoogled_chromium_Arch]
+SigLevel = Required TrustAll
+Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | sudo tee --append /etc/pacman.conf
+sudo pacman -Sy
+sudo pacman -Sy ungoogled-chromium
+
+echo "--------------------------------------"
+echo "Done Installing AUR Packages."
+echo "--------------------------------------"
 exit

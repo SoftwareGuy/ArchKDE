@@ -8,103 +8,176 @@
 #-------------------------------------------------------------------------
 
 # setup hostname and username
-read -p "Please enter hostname:" hostname
-read -p "Please enter username:" username
+read -p "What is the hostname of this device? " hostname
+read -p "What is the username you wish to use? " username
 printf "hostname="$hostname"\n" >> "install.conf"
 printf "username="$username"\n" >> "install.conf"
 export hostname=$hostname
 export username=$username
 
+echo "Got it! One fresh copy of Arch Linux with KDE coming right up!"
+
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
-iso="br" # set the mirrorlist for Brazil
+iso="au" # set the mirrorlist for Australia
+
+echo "Setting the clock with NTP ..."
 timedatectl set-ntp true
+
 pacman -S --noconfirm pacman-contrib terminus-font
+
+echo "Setting up console fonts ..."
 setfont ter-v22b
+
+echo "Setting up pacman mirror lists..."
 pacman -S --noconfirm reflector rsync
+
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector -c $iso -l 5 --sort rate --save /etc/pacman.d/mirrorlist
-mkdir /mnt
+if [ ! -d /mnt ]; then 
+	mkdir /mnt
+fi
 
+echo "-------------------------------------------------"
+echo "Installing some things..."
+echo "-------------------------------------------------"
 
-echo -e "\nInstalling prereqs...\n$HR"
 pacman -S --noconfirm gptfdisk btrfs-progs
 
 echo "-------------------------------------------------"
-echo "-------select your disk to format----------------"
+echo "Disk Selection"
 echo "-------------------------------------------------"
 
 lsblk
 echo "Please enter disk to work on: (example /dev/sda)"
 read DISK
-echo "THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK"
-read -p "are you sure you want to continue (Y/N):" formatdisk
+echo "WARNING: THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK!!"
+read -p "Take a deep breath. Are you really sure you want to continue? (Y/N):" formatdisk
 case $formatdisk in 
   y|Y|yes|Yes|YES)
 
     # CASE THE USER WANTS TO FORMAT THE DISK
     echo "--------------------------------------"
-    echo -e "\nFormatting disk...\n$HR"
+    echo "Deleting all partitions on $DISK"
     echo "--------------------------------------"
-
-    # disk prep
+    
+	# disk prep
     sfdisk --delete $DISK # delete all partitions
 
-
     # make filesystems
-    echo -e "\nCreating Filesystems...\n$HR"
+	echo "--------------------------------------"
+    echo "Partitioning $DISK"
+    echo "--------------------------------------"
 
-    # only create a single partition with a MBR partition table
+    # Create a GPT partition table, that has a 64MB EFI Partition,
+	# 512MB Boot Partition, 4GB Swap and the rest allocated to Linux.
     fdisk $DISK << EOF
-o
+g
 n
-p
 1
 
++64M
+t
+1
+1
+n
+2
+
++512M
+t
+2
+20
+n
+3
+
++4096M
+t
+3
+19
+n
+4
 
 
-
-Y
-a
 w
 EOF
 
+	echo "--------------------------------------"
+    echo "Formatting partitions..."
+    echo "--------------------------------------"
+	
+	# Format EFI Boot partition.
+	mkfs.vfat -v -F32 -n EFISystem "${DISK}1"
+	
+	# Format the GRUB Boot partition.
+	mkfs.ext4 -m0 -L BootFS "${DISK}2"
+	
+	# Format the swap partition.
+	mkswap --verbose "${DISK}3"
+	
     # just in case format the partition to linux
-    mkfs.ext4 "${DISK}1"
+    mkfs.ext4 -m1 -L RootFS "${DISK}4"
 
-    # mount the partition to /mnt
-    mount "${DISK}1" /mnt
-
+	echo "--------------------------------------"
+    echo "Mounting partitions..."
+    echo "--------------------------------------"
+	
+    # RootFS is partition 4
+	if [ ! -d /mnt ]; then 
+		mkdir /mnt
+	fi	
+	mount "${DISK}4" /mnt
+	
+	# EFI is partition 1
+	if [ ! -d /mnt/efi ]; then 
+		mkdir /mnt/efi
+	fi
+	mount "${DISK}1" /mnt/efi
+	
+	# BootFS is partition 2
+	if [ ! -d /mnt/boot ]; then 
+		mkdir /mnt/boot
+	fi
+	
+	mount "${DISK}2" /mnt/boot
+	
+	# Turn swap on.
+	swapon "${DISK}3"
     ;;
 
   *)
-    # CASE THE USER DOES NOT WANT TO FORMAT THE DISK
-    read -p "What partition should mount as root? [i.e: /dev/sda1]" mounting_partition
-    mount $mounting_partition /mnt
-    ;;
+	echo "Safety check: user wants out - aborted!"
+	exit
+	;;
 
 esac
 
 echo "--------------------------------------"
-echo "-- Arch Install on Main Drive       --"
+echo "Installing Arch Linux Base..."
 echo "--------------------------------------"
-pacstrap /mnt base base-devel linux linux-firmware vim nano sudo archlinux-keyring wget libnewt --noconfirm --needed
+pacstrap /mnt base base-devel linux linux-headers linux-firmware vim nano sudo archlinux-keyring wget libnewt --noconfirm --needed
 genfstab -U /mnt >> /mnt/etc/fstab
 echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
-echo "--------------------------------------"
-echo "-- Bootloader Systemd Installation  --"
-echo "--------------------------------------"
 
-
-# install grub for MBR booting instead of UEFI
+echo "--------------------------------------"
+echo "Installing GRUB..."
+echo "--------------------------------------"
 arch-chroot /mnt pacman -S --noconfirm grub
-arch-chroot /mnt grub-install --target=i386-pc --root-directory=/mnt $DISK 
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-boot=/mnt/boot --root-directory=/mnt $DISK 
 arch-chroot /mnt grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
-cp -R ~/archKDE /mnt/root/
+if [ ! -d /mnt/root/bootstrap ]; then 
+	mkdir -p /mnt/root/bootstrap
+fi
+	
+echo "--------------------------------------"
+echo "Copying bootstrap files to chroot..."
+echo "--------------------------------------"
+cp -R $(pwd)/*.sh /mnt/root/bootstrap/
+cp $(pwd)/install.conf /mnt/root/bootstrap/
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 echo "--------------------------------------"
-echo "--   SYSTEM READY FOR 0-setup       --"
+echo "Arch Linux Base installation complete."
+echo "Ready to continue."
 echo "--------------------------------------"
