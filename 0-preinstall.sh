@@ -171,6 +171,8 @@ echo "--------------------------------------"
 echo "Copying bootstrap files to chroot..."
 echo "--------------------------------------"
 cp -R $(pwd)/*.sh /mnt/root/bootstrap/
+cp -R $(pwd)/configs /mnt/root/bootstrap/configs
+cp -R $(pwd)/dotfiles /mnt/root/bootstrap/dotfiles
 cp $(pwd)/install.conf /mnt/root/bootstrap/
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
