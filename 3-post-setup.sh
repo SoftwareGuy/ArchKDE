@@ -66,13 +66,13 @@ sudo sed -i 's|load-module module-esound-protocol-unix|#load-module module-esoun
 # ------------------------------------------------------------------------
 
 echo "Enabling SSDM..."
-sudo systemctl enable --now sddm.service
+sudo systemctl enable sddm.service
 
 # ------------------------------------------------------------------------
 
 echo "Enabling bluetooth daemon and setting it to auto-start..."
 sudo sed -i 's|#AutoEnable=false|AutoEnable=true|g' /etc/bluetooth/main.conf
-sudo systemctl enable --now bluetooth.service
+sudo systemctl enable bluetooth.service
 
 # ------------------------------------------------------------------------
 
@@ -80,15 +80,15 @@ echo "Enabling the cups service daemon so we can print..."
 sudo pacman -S --noconfirm ntp
 systemctl enable --now cups.service
 sudo ntpd -qg
-sudo systemctl enable --now ntpd.service
+sudo systemctl enable ntpd.service
 sudo systemctl disable dhcpcd.service
 sudo systemctl stop dhcpcd.service
-sudo systemctl enable --now NetworkManager.service
+sudo systemctl enable NetworkManager.service
 
 echo "Setting up game mode..."
 systemctl --user enable gamemoded 
 systemctl --user start gamemoded
-systemctl enable --now earlyoom
+systemctl enable earlyoom
 systemctl enable auto-cpufreq
 
 echo "Setting up Steam..."

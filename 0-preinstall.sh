@@ -157,7 +157,7 @@ echo "--------------------------------------"
 echo "Installing GRUB..."
 echo "--------------------------------------"
 arch-chroot /mnt pacman -S --noconfirm grub
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-boot=/mnt/boot --root-directory=/mnt $DISK 
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/mnt/efi --boot-directory=/mnt/boot --root-directory=/mnt 
 arch-chroot /mnt grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 if [ ! -d /mnt/root/bootstrap ]; then 
