@@ -36,17 +36,6 @@ if ! source /root/bootstrap/install.conf; then
 fi
 
 echo "-------------------------------------------------"
-echo "Setting up hostnames..."
-echo "-------------------------------------------------"
-cat <<EOF > /etc/hosts
-127.0.0.1 localhost
-::1 localhost
-127.0.1.1 $hostname.localdomain $hostname
-EOF
-echo $hostname > /etc/hostname
-echo "Done."
-
-echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
 pacman -S --noconfirm pacman-contrib curl

@@ -28,12 +28,11 @@ iso="au" # set the mirrorlist for Australia
 echo "Setting the clock with NTP ..."
 timedatectl set-ntp true
 
-pacman -S --noconfirm pacman-contrib terminus-font
-
-echo "Setting up console fonts ..."
+# No need on live media.
+# pacman -S --noconfirm pacman-contrib terminus-font
 setfont ter-v22b
 
-# echo "Setting up pacman mirror lists..."
+echo "Setting up pacman mirror lists..."
 # No need to reinstall this shit
 # pacman -S --noconfirm reflector rsync
 
@@ -186,6 +185,17 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Done."
 
+echo "-------------------------------------------------"
+echo "Setting up hostnames..."
+echo "-------------------------------------------------"
+cat <<EOF > /mnt/etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 $hostname.localdomain $hostname
+EOF
+echo $hostname > /mnt/etc/hostname
+
+echo "Done."
 echo "--------------------------------------"
 echo "(Pre-)Installing GRUB..."
 echo "--------------------------------------"
