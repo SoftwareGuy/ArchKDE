@@ -38,6 +38,7 @@ if [ $? -eq 0 ]; then
 	'lightlyshaders-git' # Not found?
 	'papirus-icon-theme'
 	'windows10-icon-theme-git'
+	'We10XOS-cursors'
 	'ttf-droid'
 	'ttf-hack'
 	'ttf-meslo'
