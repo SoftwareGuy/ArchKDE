@@ -94,22 +94,22 @@ systemctl enable auto-cpufreq
 
 echo "Setting up sysctl tweaks..."
 cat <<EOF >> /etc/sysctl.d/10-networking.conf
-sysctl -w net.core.netdev_max_backlog = 16384
-sysctl -w net.core.somaxconn = 8192
-sysctl -w net.core.rmem_default = 1048576
-sysctl -w net.core.rmem_max = 16777216
-sysctl -w net.core.wmem_default = 1048576
-sysctl -w net.core.wmem_max = 16777216
-sysctl -w net.core.optmem_max = 65536
-sysctl -w net.ipv4.tcp_rmem = 4096 1048576 2097152
-sysctl -w net.ipv4.tcp_wmem = 4096 65536 16777216
-sysctl -w net.ipv4.udp_rmem_min = 8192
-sysctl -w net.ipv4.udp_wmem_min = 8192
-sysctl -w net.ipv4.tcp_fastopen = 3
-sysctl -w net.ipv4.tcp_max_syn_backlog = 8192
-sysctl -w net.ipv4.tcp_max_tw_buckets = 2000000
-sysctl -w vm.swappiness = 10
+net.core.netdev_max_backlog = 16384
+net.core.somaxconn = 8192
+net.core.rmem_default = 1048576
+net.core.rmem_max = 16777216
+net.core.wmem_default = 1048576
+net.core.wmem_max = 16777216
+net.core.optmem_max = 65536
+net.ipv4.tcp_rmem = 4096 1048576 2097152
+net.ipv4.tcp_wmem = 4096 65536 16777216
+net.ipv4.udp_rmem_min = 8192
+net.ipv4.udp_wmem_min = 8192
+net.ipv4.tcp_fastopen = 3
+net.ipv4.tcp_max_syn_backlog = 8192
+net.ipv4.tcp_max_tw_buckets = 2000000
 EOF
+echo "vm.swappiness = 10" >> /etc/sysctl.d/10-swappiness.conf
 
 echo "--------------------------------------"
 echo "Fixing up administration privileges..."
@@ -133,6 +133,7 @@ echo "Cleaning up"
 echo "--------------------------------------"
 rm -rvf /root/bootstrap
 rm -rvf /home/*/bootstrap
+rm -rvf /tmp/*
 
 echo "--------------------------------------"
 echo "Done polishing the install."

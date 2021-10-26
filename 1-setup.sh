@@ -40,7 +40,7 @@ echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
 pacman -S --noconfirm pacman-contrib curl
 pacman -S --noconfirm reflector rsync
-iso="au" # brazil mirrolist
+iso="au"
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 
 nc=$(grep -c ^processor /proc/cpuinfo)
@@ -68,14 +68,8 @@ echo "Setting language..."
 echo "LANG=en_AU.UTF-8" >> /etc/vconsole.conf
 echo "LANGUAGE=en_AU:en" >> /etc/vconsole.conf
 
-# English is my native language, no latin please.
-# echo "KEYMAP=la-latin1" >> /etc/vconsole.conf
-
 echo "LC_TIME=en_AU.UTF-8" >> /etc/vconsole.conf
 echo "LC_COLLATE=C" >> /etc/vconsole.conf
-
-# Set keymaps
-# localectl --no-ask-password set-keymap la-latin1
 
 # Hostname
 echo "Setting hostname..."
@@ -217,8 +211,8 @@ echo "Done."
 echo "Batch installing desired packages..."
 
 for PKG in "${PKGS[@]}"; do
-    echo "INSTALLING: ${PKG}"
-    sudo pacman -S "$PKG" --noconfirm --needed
+    echo "- Installing package: ${PKG}"
+    sudo pacman --noconfirm --needed -S "$PKG" 
 done
 echo "Done."
 
