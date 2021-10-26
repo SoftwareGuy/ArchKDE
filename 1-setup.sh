@@ -271,6 +271,11 @@ then
     cp /etc/skel/.bash_logout /home/$username/
     cp /etc/skel/.bashrc /home/$username/.bashrc
     chown -R $username: /home/$username
+	
+	echo "Copying user portion of the setup phase..."
+	mkdir -p /home/$username/bootstrap
+	cp -rv /root/bootstrap/2-user.sh /home/$username/bootstrap/2-user.sh
+	
     sed -n '#/home/'"$username"'/#,s#bash#zsh#' /etc/passwd
 else
 	echo "You are already a user proceed with aur installs"
