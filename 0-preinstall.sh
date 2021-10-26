@@ -52,7 +52,7 @@ echo "Please enter disk to work on: (example /dev/sda)"
 read DISK
 echo "You specified $DISK."
 
-if [ ! -f $DISK ]; then
+if [ ! -c $DISK ]; then
 	echo "ERROR: The specified disk does not exist. Cannot continue."
 	exit 1
 fi
