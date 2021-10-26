@@ -59,12 +59,10 @@ sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 
 echo "Setting the timezone..."
+ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
 timedatectl --no-ask-password set-timezone Australia/Brisbane
 timedatectl --no-ask-password set-ntp 1
-
-# this wont run
-#localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_COLLATE="" LC_TIME="en_US.UTF-8"
-# persistant configuration
+hwclock --systohc
 
 echo "Setting language..."
 echo "LANG=en_AU.UTF-8" >> /etc/vconsole.conf
@@ -81,7 +79,6 @@ echo "LC_COLLATE=C" >> /etc/vconsole.conf
 
 # Hostname
 echo "Setting hostname..."
-
 hostnamectl --no-ask-password set-hostname $hostname
 
 # Setup sudo.
