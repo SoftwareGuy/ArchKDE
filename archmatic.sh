@@ -1,12 +1,12 @@
 #!/bin/bash
-echo "Beginning setup..."
+echo "Preinstallation phase begins..."
 bash 0-preinstall.sh
 if [ $? -ne 0 ]; then
 	echo "Error code $? encountered. Shit's fucked, aborting."
 	exit
 fi
 
-echo "Running setup..."
+echo "Setup phase begins..."
 arch-chroot /mnt /root/bootstrap/1-setup.sh
 if [ $? -ne 0 ]; then
 	echo "Error code $? encountered. Shit's fucked, aborting."
@@ -19,12 +19,14 @@ if [ $? -ne 0 ]; then
 	exit
 fi
 
+echo "User setup phase begins..."
 arch-chroot /mnt /usr/bin/runuser -u $username -- /home/$username/bootstrap/2-user.sh
 if [ $? -ne 0 ]; then
 	echo "Error code $? encountered. Shit's fucked, aborting."
 	exit
 fi
 
+echo "Post setup phase begins..."
 arch-chroot /mnt /root/bootstrap/3-post-setup.sh
 if [ $? -ne 0 ]; then
 	echo "Error code $? encountered. Shit's fucked, aborting."
@@ -32,7 +34,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # copy configs
-cp -R ./configs/* /mnt/home/$username/
+# cp -R ./configs/* /mnt/home/$username/
 
 umount -R /mnt
-echo "Done."
+echo "Installation complete unless errors occurred."
+exit 0

@@ -7,9 +7,14 @@
 #  Arch Linux Post Install Setup and Config
 #-------------------------------------------------------------------------
 echo "--------------------------------------"
+echo "Running step 2 of GRUB install..."
+echo "--------------------------------------"
+grub-install --target=x86_64-efi --efi-directory=/mnt/efi
+
+echo "--------------------------------------"
 echo "Installing Network..."
 echo "--------------------------------------"
-pacman -S networkmanager modemmanager usbutils usb_modeswitch dhclient --noconfirm --needed
+pacman --noconfirm --needed -S networkmanager modemmanager usbutils usb_modeswitch dhclient 
 systemctl enable NetworkManager
 
 echo "--------------------------------------"
@@ -29,6 +34,17 @@ if ! source /root/bootstrap/install.conf; then
   export hostname=$hostname
   export username=$username
 fi
+
+echo "-------------------------------------------------"
+echo "Setting up hostnames..."
+echo "-------------------------------------------------"
+cat <<EOF > /etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 $hostname.localdomain $hostname
+EOF
+echo $hostname > /etc/hostname
+echo "Done."
 
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
@@ -111,227 +127,152 @@ echo "Installing additional packages..."
 echo "-------------------------------------------------"
 
 PKGS=(
-'alsa-plugins' # audio plugins
-'alsa-utils' # audio utils
-'ark' # compression
-'audiocd-kio' 
-'autoconf' # build
-'automake' # build
-'base'
-'bash-completion'
-'bashtop'
-'bind'
-'binutils'
-'bison'
-'bluedevil'
-'bluez'
-'bluez-libs'
-'breeze'
-'breeze-gtk'
-'bridge-utils'
-'btrfs-progs'
-'baka-mplayer' # video players
-'cmatrix'
-'code' # Visual Studio code
-'cronie'
-'cups'
-'dhcpcd'
-'dialog'
+# Xorg Essentials
+'xorg-server'
+'xorg-xinit'
+# KDE Essentials
+'plasma-meta'
+'kde-applications-meta'
 'discover'
-'dmidecode'
-'dnsmasq'
-'dolphin'
-'dosfstools'
-'drkonqi'
-'earlyoom'
-'edk2-ovmf'
-'efibootmgr' # EFI boot
-'exfat-utils'
-'flex'
-'fuse2'
-'fuse3'
-'fuseiso'
-'gamemode'
-'gcc'
-'gimp' # Photo editing
-'git'
-'gparted' # partition management
-'gptfdisk'
-'gsmartcontrol'
-'groff'
-'grub'
-'grub-customizer'
-'gst-libav'
-'gst-plugins-good'
-'gst-plugins-ugly'
-'haveged'
-'hdparm'
-'htop'
-'iftop'
-'iotop'
-'iptables-nft'
-'jdk-openjdk'
-'kactivitymanagerd'
-'kate'
-'kvantum-qt5'
-'kcalc'
-'kcharselect'
-'kcron'
-'kde-cli-tools'
-'kde-gtk-config'
-'kdecoration'
-'kdenetwork-filesharing'
-'kdeplasma-addons'
-'kdesdk-thumbnailers'
-'kdialog'
-'keychain'
-'kfind'
-'kgamma5'
-'kgpg'
-'khotkeys'
-'kinfocenter'
-'kitty'
-'kmenuedit'
-'kmix'
-'konsole'
-'kscreen'
-'kscreenlocker'
-'ksshaskpass'
-'ksystemlog'
-'ksystemstats'
-'kwallet-pam'
-'kwalletmanager'
-'kwayland-integration'
-'kwayland-server'
-'kwin'
-'kwrite'
-'kwrited'
-'layer-shell-qt'
-'libguestfs'
-'libkscreen'
-'libksysguard'
-'libnewt'
-'libtool'
-'libvirt'
-'linux-lqx'
-'linux-lqx-headers'
-'lsof'
-'lutris'
-'lvm2'
-'lzop'
-'m4'
-'make'
-'mdadm'
-'milou'
-'nano'
-'neofetch'
-'networkmanager'
-'noto-fonts'
-'ntfs-3g'
-'okular'
-'openbsd-netcat'
-'openssh'
-'os-prober'
-'oxygen'
-'p7zip'
-'pacman-contrib'
-'patch'
-'picom'
-'pkgconf'
-'plasma-browser-integration'
-'plasma-desktop'
-'plasma-disks'
-'plasma-firewall'
-'plasma-integration'
-'plasma-nm'
-'plasma-pa'
-'plasma-sdk'
-'plasma-systemmonitor'
-'plasma-thunderbolt'
-'plasma-vault'
-'plasma-workspace'
-'plasma-workspace-wallpapers'
-'polkit-kde-agent'
 'powerdevil'
-'powerline-fonts'
-'print-manager'
+'xdg-user-dirs'
+# KDE apparently already pulls this stuff in.
+# 'drkonqi'
+# 'breeze'
+# 'breeze-gtk'
+# Audio
+'alsa-plugins'
+'alsa-utils'
+'audiocd-kio'
 'pulseaudio'
 'pulseaudio-alsa'
 'pulseaudio-bluetooth'
-'python-pip'
-'qemu'
-'rsync'
-'sddm-kcm'
-'spectacle'
-'steam'
-'sudo'
-'swtpm'
-'synergy'
-'systemsettings'
-'terminus-font'
-'texinfo'
-'traceroute'
-'ufw'
+# Compression
+'ark'
+'rar'
+'zip'
 'unrar'
 'unzip'
-'usbutils'
-'vde2'
-'vim'
+'p7zip'
+# Build Essentials
+'autoconf'
+'automake'
+# Bash Tools
+'bash-completion'
+'neofetch'
+'openbsd-netcat'
+# BlueTooth
+'bluedevil'
+'bluez'
+'bluez-libs'
+# Development
+'code'
+'jdk-openjdk'
+'libtool'
+'python-pip'
+'nodejs'
+'npm'
+# Video stuff
+'baka-mplayer'
+'gst-libav'
+'gst-plugins-good'
+'gst-plugins-ugly'
+# Printing
+'cups'
+'print-manager'
+# QEMU Emulation
+'fuseiso'
+'edk2-ovmf'
+'libvirt'
+'qemu'
+'swtpm'
 'virt-manager'
 'virt-viewer'
-'wget'
-'which'
+# Gaming
+'gamemode'
+'lutris'
+'steam'
+# WINE
 'wine-staging'
 'wine-gecko'
 'wine-mono'
 'winetricks'
-'xdg-desktop-portal-kde'
-'xdg-user-dirs'
-'xorg-server'
-'xorg-xinit'
-'zeroconf-ioslave'
-'zip'
+# Photo Editing
+'gimp'
+# Disks
+'gparted'
+'gsmartcontrol'
+# Fonts
+'noto-fonts'
+'powerline-fonts'
+'terminus-font'
+# System
+'intel-ucode'
+'amd-ucode'
+'grub-customizer'
+'pacman-contrib'
+'patch'
+'picom'
 'zsh'
 'zsh-syntax-highlighting'
 'zsh-autosuggestions'
+'zeroconf-ioslave'
+'lib32-systemd'
+'wqy-zenhei'
+# Liquorix Kernel
+'linux-lqx'
+'linux-lqx-headers'
 )
 
-echo "Safety sync..."
+echo "Asking pacman to synchronize before installing..."
 pacman -Sy 
+echo "Done."
 
-echo "Start installing packages..."
+echo "Batch installing desired packages..."
 
 for PKG in "${PKGS[@]}"; do
     echo "INSTALLING: ${PKG}"
     sudo pacman -S "$PKG" --noconfirm --needed
 done
+echo "Done."
 
-pacman -Sy --noconfirm intel-ucode amd-ucode
+echo "Detecting graphics card and installing drivers..."
 
 # Graphics Drivers find and install
-mkdir /etc/pacman.d/hooks
+if [ ! -d "/etc/pacman.d/hooks" ]; then
+	mkdir -p /etc/pacman.d/hooks
+fi
 
 if lspci | grep -E "NVIDIA|GeForce"; then
+	echo "- Detected an nVidia/GeForce GPU!"	
     sudo cat <<EOF > /etc/pacman.d/hooks/nvidia.hook
-    [Trigger]
-    Operation=Install
-    Operation=Upgrade
-    Operation=Remove
-    Type=Package
-    Target=nvidia
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=nvidia
 
-    [Action]
-    Depends=mkinitcpio
-    When=PostTransaction
-    Exec=/usr/bin/mkinitcpio -P
+[Action]
+Depends=mkinitcpio
+When=PostTransaction
+Exec=/usr/bin/mkinitcpio -P
 EOF
-    pacman -S nvidia-dkms dkms --noconfirm --needed
+    pacman --noconfirm --needed -S nvidia-dkms
 elif lspci | grep -E "Radeon"; then
-    pacman -S xf86-video-amdgpu --noconfirm --needed
+	echo " - Detected AMD Radeon GPU!"
+    pacman --needed --noconfirm -S xf86-video-amdgpu
 elif lspci | grep -E "Integrated Graphics Controller"; then
-    pacman -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils --needed --noconfirm
+	echo "- Detected Integrated (Intel?) Graphics Processor!"
+    pacman --needed --noconfirm -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils 
 fi
-echo -e "\nDone!\n"
+echo "GPU detection complete."
+
+echo "Configuring services."
+systemctl enable libvirtd
+
+echo "GRUB configuration."
+grub-mkconfig -o /boot/grub/grub.cfg
 
 # WTF??
 if [ $(whoami) = "root" ];
@@ -340,10 +281,11 @@ then
     echo "--------------------------------------"
     echo "User Configuration"
 	echo "--------------------------------------"
-	cp -Rv /root/bootstrap /home/$username/
+	# cp -Rv /root/bootstrap /home/$username/
 	
     echo "Setting password for $username: "
     passwd $username
+	
 	echo "Copying base data..."
     cp /etc/skel/.bash_profile /home/$username/
     cp /etc/skel/.bash_logout /home/$username/

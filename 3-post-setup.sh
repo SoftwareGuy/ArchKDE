@@ -54,48 +54,46 @@ EOF
 
 echo "Increasing file watcher count..."
 # This prevents a "too many files" error in Visual Studio Code
-echo fs.inotify.max_user_watches=524288 | sudo tee /etc/sysctl.d/40-max-user-watches.conf && sudo sysctl --system
+echo fs.inotify.max_user_watches=524288 | tee /etc/sysctl.d/40-max-user-watches.conf
 
 # ------------------------------------------------------------------------
 
 echo "Disabling Pulse .esd_auth module..."
 # Pulse audio loads the `esound-protocol` module, which best I can tell is rarely needed.
 # That module creates a file called `.esd_auth` in the home directory which I'd prefer to not be there. So...
-sudo sed -i 's|load-module module-esound-protocol-unix|#load-module module-esound-protocol-unix|g' /etc/pulse/default.pa
+sed -i 's|load-module module-esound-protocol-unix|#load-module module-esound-protocol-unix|g' /etc/pulse/default.pa
 
 # ------------------------------------------------------------------------
 
 echo "Enabling SSDM..."
-sudo systemctl enable sddm.service
+systemctl enable sddm.service
 
 # ------------------------------------------------------------------------
 
 echo "Enabling bluetooth daemon and setting it to auto-start..."
-sudo sed -i 's|#AutoEnable=false|AutoEnable=true|g' /etc/bluetooth/main.conf
-sudo systemctl enable bluetooth.service
+sed -i 's|#AutoEnable=false|AutoEnable=true|g' /etc/bluetooth/main.conf
+systemctl enable bluetooth.service
 
 # ------------------------------------------------------------------------
 
 echo "Enabling the cups service daemon so we can print..."
-sudo pacman -S --noconfirm ntp
 systemctl enable cups.service
-sudo ntpd -qg
-sudo systemctl enable ntpd.service
-sudo systemctl disable dhcpcd.service
-sudo systemctl stop dhcpcd.service
-sudo systemctl enable NetworkManager.service
+
+# Moved to pre-install phase
+# sudo systemctl enable ntpd.service
+# sudo systemctl disable dhcpcd.service
+# sudo systemctl stop dhcpcd.service
+# NetworkManager already configured in pre-install phase
+# sudo systemctl enable NetworkManager.service
 
 echo "Setting up game mode..."
-systemctl --user enable gamemoded 
-systemctl --user start gamemoded
-systemctl enable earlyoom
+systemctl --user enable gamemoded
 systemctl enable auto-cpufreq
-
-echo "Setting up Steam..."
-sudo pacman -Sy --needed steam wqy-zenhei lib32-systemd
+# No need to do this in a chroot.
+# systemctl --user start gamemoded
 
 echo "Setting up sysctl tweaks..."
-sudo cat <<EOF >> /etc/sysctl.d/10-networking.conf
+cat <<EOF >> /etc/sysctl.d/10-networking.conf
 sysctl -w net.core.netdev_max_backlog = 16384
 sysctl -w net.core.somaxconn = 8192
 sysctl -w net.core.rmem_default = 1048576
@@ -124,9 +122,19 @@ sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 # Replace in the same state
 cd $pwd
 
+echo "--------------------------------------"
+echo "Finalizing GRUB once again..."
+echo "--------------------------------------"
 mkinitcpio -P
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "--------------------------------------"
+echo "Cleaning up"
+echo "--------------------------------------"
+rm -rvf /root/bootstrap
+rm -rvf /home/*/bootstrap
+
+echo "--------------------------------------"
 echo "Done polishing the install."
 echo "--------------------------------------"
+exit 0
