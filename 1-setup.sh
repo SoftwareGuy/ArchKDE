@@ -167,7 +167,7 @@ PKGS=(
 # Printing
 'cups'
 'print-manager'
-'system-config-printer';
+'system-config-printer'
 # QEMU Emulation
 'fuseiso'
 'edk2-ovmf'
