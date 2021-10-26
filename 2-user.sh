@@ -33,17 +33,16 @@ if [ $? -eq 0 ]; then
 	# Fonts
 	'nerd-fonts-fira-code'
 	'noto-fonts-emoji'
-	# Themes
-	'lightly-git'
-	'lightlyshaders-git' # Not found?
-	'papirus-icon-theme'
-	'windows10-icon-theme-git'
-	'We10XOS-cursors'
 	'ttf-droid'
 	'ttf-hack'
 	'ttf-meslo'
 	'ttf-roboto'
+	'ttf-dejavu'
 	'ttf-liberation'
+	# Themes
+	'papirus-icon-theme'
+	'windows10-icon-theme-git'
+	'We10XOS-cursors'
 	# Gaming
 	'dxvk-bin' # DXVK DirectX to Vulcan
 	'goverlay'

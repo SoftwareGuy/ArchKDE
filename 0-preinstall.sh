@@ -161,8 +161,8 @@ EOF
 	
 	mount "${PARTBASE}2" /mnt/boot
 	
-	# Don't turn swap on - causes annoyances later.
-	# swapon "${PARTBASE}3"
+	# Turn swap on or we may have shit break.
+	swapon "${PARTBASE}3"
     ;;
 
   *)
@@ -176,7 +176,7 @@ echo "--------------------------------------"
 echo "Installing the base system..."
 echo "--------------------------------------"
 # Coburn's note: this is messy, but fuck it.
-pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw
+pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
 if [ $? -ne 0 ]; then
 	echo "ERROR: Pacstrap failure code $?"	
 	exit 1
@@ -213,8 +213,12 @@ arch-chroot /mnt /usr/bin/systemctl enable cronie
 arch-chroot /mnt /usr/bin/systemctl enable rngd
 arch-chroot /mnt /usr/bin/systemctl enable earlyoom
 arch-chroot /mnt /usr/bin/systemctl enable ntpd
+arch-chroot /mnt /usr/bin/systemctl enable avahi-daemon
 arch-chroot /mnt /usr/bin/systemctl stop dhcpcd
 arch-chroot /mnt /usr/bin/systemctl disable dhcpcd
+arch-chroot /mnt /usr/bin/systemctl disable systemd-resolved.service
+cp -v $(pwd)/conf/etc_nsswitch.txt /mnt/etc/nsswitch.conf
+
 
 echo "--------------------------------------"
 echo "Copying bootstrap files to chroot..."

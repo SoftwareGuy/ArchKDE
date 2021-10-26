@@ -116,6 +116,13 @@ PKGS=(
 'discover'
 'powerdevil'
 'xdg-user-dirs'
+'xdg-desktop-portal'
+'xdg-desktop-portal-kde'
+'packagekit-qt5'
+# KDE Compatiblity
+'gnome-settings-daemon'
+'gsettings-desktop-schemas'
+'gsettings-qt'
 # KDE apparently already pulls this stuff in.
 # 'drkonqi'
 # 'breeze'
@@ -160,6 +167,7 @@ PKGS=(
 # Printing
 'cups'
 'print-manager'
+'system-config-printer';
 # QEMU Emulation
 'fuseiso'
 'edk2-ovmf'
@@ -250,6 +258,7 @@ echo "GPU detection complete."
 
 echo "Configuring services."
 systemctl enable libvirtd
+echo "GTK_USE_PORTAL=1" >> /etc/environment
 
 echo "GRUB configuration."
 grub-mkconfig -o /boot/grub/grub.cfg

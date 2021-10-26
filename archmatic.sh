@@ -41,6 +41,7 @@ fi
 # copy configs
 # cp -R ./configs/* /mnt/home/$username/
 
+swapoff -a
 umount -R /mnt
 echo "Installation complete unless errors occurred."
 exit 0
