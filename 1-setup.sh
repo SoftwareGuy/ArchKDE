@@ -255,7 +255,7 @@ Depends=mkinitcpio
 When=PostTransaction
 Exec=/usr/bin/mkinitcpio -P
 EOF
-    pacman --noconfirm --needed -S nvidia-dkms nvidia-utils 
+    pacman --noconfirm --needed -S nvidia-dkms nvidia-utils nvidia-settings
 	echo "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json" >> /etc/environment.conf
 elif lspci | grep -E "Radeon"; then
 	echo " - Detected AMD Radeon GPU!"

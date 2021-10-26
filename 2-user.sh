@@ -10,7 +10,6 @@
 echo "--------------------------------------"
 echo "Installing AUR Packages..."
 echo "--------------------------------------"
-# You can solve users running this script as root with this and then doing the same for the next for statement. However I will leave this up to you.
 
 echo "Installing Yay..."
 cd $HOME
@@ -41,8 +40,7 @@ if [ $? -eq 0 ]; then
 	'ttf-liberation'
 	# Themes
 	'papirus-icon-theme'
-	'windows10-icon-theme-git'
-	'We10XOS-cursors'
+	'xcursor-we10xos'
 	# Gaming
 	'dxvk-bin' # DXVK DirectX to Vulcan
 	'goverlay'
@@ -55,11 +53,16 @@ if [ $? -eq 0 ]; then
 	'the_silver_searcher' # fzf dependency
 	)
 	echo "- Done."
-	echo "Installing AUR Packages..."
+	
+	echo "Installing AUR packages via yay..."
 	for PKG in "${PKGS[@]}"; do
 		yay -S --noconfirm $PKG
 	done
-
+	
+	echo "Cleaning yay stuffs..."
+	yay -Yc --noconfirm
+	
+	
 	mkdir -p /home/$(whoami)/.config/mpv
 	cat <<EOF >> /home/$(whoami)/.config/mpv/mpv.conf
 vo=vdpau
