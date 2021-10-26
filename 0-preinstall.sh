@@ -51,7 +51,7 @@ echo "Please enter disk to work on: (example /dev/sda)"
 read DISK
 echo "You specified $DISK."
 
-if [ ! -c $DISK ]; then
+if [ ! -e $DISK ]; then
 	echo "ERROR: The specified disk does not exist. Cannot continue."
 	exit 1
 fi
@@ -62,6 +62,7 @@ case $this_is_nvme in
   y|Y|yes|Yes|YES)
 	# Prefix because NVMe drives are special.  
 	PARTBASE="${DISK}p"
+	;;
 	
   *)
 	# No prefix.
