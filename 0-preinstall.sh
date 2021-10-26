@@ -10,6 +10,8 @@
 # Used later in partitioning step.
 PARTBASE=""
 
+setfont ter-v22b
+
 # setup hostname and username
 read -p "What is the hostname of this device? " hostname
 read -p "What is the username you wish to use? " username
@@ -28,14 +30,8 @@ iso="au" # set the mirrorlist for Australia
 echo "Setting the clock with NTP ..."
 timedatectl set-ntp true
 
-# No need on live media.
-# pacman -S --noconfirm pacman-contrib terminus-font
-setfont ter-v22b
 
 echo "Setting up pacman mirror lists..."
-# No need to reinstall this shit
-# pacman -S --noconfirm reflector rsync
-
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector -c $iso -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 if [ ! -d /mnt ]; then 
@@ -45,8 +41,8 @@ fi
 echo "-------------------------------------------------"
 echo "Disk Selection"
 echo "-------------------------------------------------"
-
 lsblk
+
 echo "Please enter disk to work on: (example /dev/sda)"
 read DISK
 echo "You specified $DISK."
@@ -56,7 +52,7 @@ if [ ! -e $DISK ]; then
 	exit 1
 fi
 
-read -p "Is this a NVMe device (ie. /dev/nvme0n1?) (Y/N):" this_is_nvme
+read -p "Is this a NVMe device (ie. /dev/nvme0n1)? (Y/N): " this_is_nvme
 
 case $this_is_nvme in 
   y|Y|yes|Yes|YES)
@@ -178,7 +174,7 @@ echo "--------------------------------------"
 # Coburn's note: this is messy, but fuck it.
 pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
 if [ $? -ne 0 ]; then
-	echo "ERROR: Pacstrap failure code $?"	
+	echo "ERROR: Pacstrap failure code $?"
 	exit 1
 fi
 
@@ -201,7 +197,7 @@ echo "--------------------------------------"
 echo "(Pre-)Installing GRUB..."
 echo "--------------------------------------"
 arch-chroot /mnt pacman -S --noconfirm --needed grub os-prober 
-echo "NOTE: GRUB will be installed inside chroot."
+echo "NOTE: GRUB will be configured inside chroot."
 echo "Done."
 
 echo "--------------------------------------"
@@ -219,7 +215,6 @@ arch-chroot /mnt /usr/bin/systemctl disable dhcpcd
 arch-chroot /mnt /usr/bin/systemctl disable systemd-resolved.service
 cp -v $(pwd)/conf/etc_nsswitch.txt /mnt/etc/nsswitch.conf
 
-
 echo "--------------------------------------"
 echo "Copying bootstrap files to chroot..."
 echo "--------------------------------------"
@@ -229,10 +224,6 @@ fi
 cp $(pwd)/1-setup.sh /mnt/root/bootstrap/
 cp $(pwd)/2-user.sh /mnt/root/bootstrap/
 cp $(pwd)/3-post-setup.sh /mnt/root/bootstrap/
-
-# Removed
-# cp -R $(pwd)/configs /mnt/root/bootstrap/configs
-# cp -R $(pwd)/dotfiles /mnt/root/bootstrap/dotfiles
 
 cp $(pwd)/install.conf /mnt/root/bootstrap/
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist

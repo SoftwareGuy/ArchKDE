@@ -24,7 +24,7 @@ echo "- Cloning"
 git clone "https://aur.archlinux.org/yay.git"
 cd "$HOME/Staging/yay"
 echo "- Installing"
-makepkg -si --noconfirm
+makepkg -sic --noconfirm
 
 if [ $? -eq 0 ]; then
 	PKGS=(
@@ -73,12 +73,6 @@ tscale=oversample
 EOF
 
 	export PATH=$PATH:$HOME/.local/bin
-	# Todo: Clean this.
-	# cp -r $HOME/bootstrap/dotfiles/* $HOME/.config/
-	# pip install konsave
-	# konsave -i $HOME/bootstrap/kde.knsv
-	# sleep 1
-	# konsave -a kde
 
 	echo "Installing Ungoogled Chromium..."
 	curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -

@@ -80,12 +80,11 @@ echo "Setting up sudo for administrative privileges..."
 
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
-# Add parallel downloading
 echo "Tweaking package manager..."
-
+echo "- Enabling parallel downloads..."
 sed -i 's/^#Para/Para/' /etc/pacman.conf
 
-# Enable multilib
+echo "- Enabling multilib support..."
 cat <<EOF >> /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
@@ -94,13 +93,9 @@ Include = /etc/pacman.d/mirrorlist
 Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 
+echo "- Importing Liquorix package signing key..."
 pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 9AE4078033F8024D
 pacman-key --lsign-key 9AE4078033F8024D
-
-pacman -Sy --noconfirm
-
-# echo "NOTE: Liquorix kernel repository is commented out in /etc/pacman.conf."
-# echo "Enable it manually if you want it (the package key should be imported by now)."
 
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
@@ -141,6 +136,12 @@ PKGS=(
 'unrar'
 'unzip'
 'p7zip'
+'lzip'
+'lrzip'
+'arj'
+'unarj'
+'lhasa'
+'unace'
 # Build Essentials
 'autoconf'
 'automake'
@@ -164,6 +165,8 @@ PKGS=(
 'gst-libav'
 'gst-plugins-good'
 'gst-plugins-ugly'
+# Office
+'libreoffice-still'
 # Printing
 'cups'
 'print-manager'
@@ -207,6 +210,7 @@ PKGS=(
 'zeroconf-ioslave'
 'lib32-systemd'
 'wqy-zenhei'
+'packagekit'
 # Liquorix Kernel
 'linux-lqx'
 'linux-lqx-headers'
@@ -224,7 +228,12 @@ for PKG in "${PKGS[@]}"; do
 done
 echo "Done."
 
+echo "Enabling libvirt for Virtual Machines..."
+systemctl enable libvirtd
+
+echo "--------------------------------------"
 echo "Detecting graphics card and installing drivers..."
+echo "--------------------------------------"
 
 # Graphics Drivers find and install
 if [ ! -d "/etc/pacman.d/hooks" ]; then
@@ -246,47 +255,43 @@ Depends=mkinitcpio
 When=PostTransaction
 Exec=/usr/bin/mkinitcpio -P
 EOF
-    pacman --noconfirm --needed -S nvidia-dkms
+    pacman --noconfirm --needed -S nvidia-dkms nvidia-utils 
+	echo "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json" >> /etc/environment.conf
 elif lspci | grep -E "Radeon"; then
 	echo " - Detected AMD Radeon GPU!"
-    pacman --needed --noconfirm -S xf86-video-amdgpu
+    pacman --needed --noconfirm -S xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
 elif lspci | grep -E "Integrated Graphics Controller"; then
 	echo "- Detected Integrated (Intel?) Graphics Processor!"
     pacman --needed --noconfirm -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils 
 fi
 echo "GPU detection complete."
 
-echo "Configuring services."
-systemctl enable libvirtd
+echo "Installing Vulkan support for GPU."
+pacman --noconfirm --needed -S vulkan-icd-loader lib32-vulkan-icd-loader vulkan-tools
+
+echo "Performing environment tweaks..."
 echo "GTK_USE_PORTAL=1" >> /etc/environment
 
-echo "GRUB configuration."
+echo "Re-creating GRUB Configuration..."
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# WTF??
-if [ $(whoami) = "root" ];
-then
-    useradd -m -g users -G wheel -s /bin/bash $username 
-    echo "--------------------------------------"
-    echo "User Configuration"
-	echo "--------------------------------------"
-	# cp -Rv /root/bootstrap /home/$username/
-	
-    echo "Setting password for $username: "
-    passwd $username
-	
-	echo "Copying base data..."
-    cp /etc/skel/.bash_profile /home/$username/
-    cp /etc/skel/.bash_logout /home/$username/
-    cp /etc/skel/.bashrc /home/$username/.bashrc
-    chown -R $username: /home/$username
-	
-	echo "Copying user portion of the setup phase..."
-	mkdir -p /home/$username/bootstrap
-	cp -rv /root/bootstrap/2-user.sh /home/$username/bootstrap/2-user.sh
-	
-    sed -n '#/home/'"$username"'/#,s#bash#zsh#' /etc/passwd
-else
-	echo "You are already a user proceed with aur installs"
-fi
+echo "--------------------------------------"
+echo "User Configuration"
+echo "--------------------------------------"
+useradd -m -g users -G wheel,libvirt -s /bin/bash $username 
 
+echo "Setting password for $username: "
+passwd $username
+
+echo "Copying base profile data..."
+cp /etc/skel/.bash_profile /home/$username/
+cp /etc/skel/.bash_logout /home/$username/
+cp /etc/skel/.bashrc /home/$username/.bashrc
+chown -R $username: /home/$username
+
+echo "Copying user bootstrap phase..."
+mkdir -p /home/$username/bootstrap
+cp -rv /root/bootstrap/2-user.sh /home/$username/bootstrap/2-user.sh
+
+sed -n '#/home/'"$username"'/#,s#bash#zsh#' /etc/passwd
+exit 0
