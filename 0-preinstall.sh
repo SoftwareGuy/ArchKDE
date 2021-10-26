@@ -176,12 +176,12 @@ echo "--------------------------------------"
 echo "Installing the base system..."
 echo "--------------------------------------"
 # Coburn's note: this is messy, but fuck it.
-pacstrap --noconfirm --needed /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfs-utils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw
+pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfs-utils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw
 if [ $? -ne 0 ]; then
 	echo "ERROR: Pacstrap failure code $?"	
 	exit 1
 fi
-echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
+
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Done."
@@ -200,7 +200,7 @@ echo "Done."
 echo "--------------------------------------"
 echo "(Pre-)Installing GRUB..."
 echo "--------------------------------------"
-arch-chroot /mnt pacman -S --noconfirm grub os-prober 
+arch-chroot /mnt pacman -S --noconfirm --needed grub os-prober 
 echo "NOTE: GRUB will be installed inside chroot."
 echo "Done."
 
