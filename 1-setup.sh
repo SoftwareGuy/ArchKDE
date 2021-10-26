@@ -9,7 +9,7 @@
 echo "--------------------------------------"
 echo "Running step 2 of GRUB install..."
 echo "--------------------------------------"
-grub-install --target=x86_64-efi --efi-directory=/mnt/efi
+grub-install --target=x86_64-efi --efi-directory=/efi
 
 echo "--------------------------------------"
 echo "Installing Network..."

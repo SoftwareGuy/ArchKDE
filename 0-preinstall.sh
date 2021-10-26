@@ -224,7 +224,7 @@ if [ ! -d /mnt/root/bootstrap ]; then
 fi
 cp $(pwd)/1-setup.sh /mnt/root/bootstrap/
 cp $(pwd)/2-user.sh /mnt/root/bootstrap/
-cp $(pwd)/3-postsetup.sh /mnt/root/bootstrap/
+cp $(pwd)/3-post-setup.sh /mnt/root/bootstrap/
 
 # Removed
 # cp -R $(pwd)/configs /mnt/root/bootstrap/configs
