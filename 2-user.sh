@@ -8,10 +8,9 @@
 #-------------------------------------------------------------------------
 
 echo "--------------------------------------"
-echo "Installing AUR Packages..."
+echo "Installing AUR Packages with Yay..."
 echo "--------------------------------------"
 
-echo "Installing Yay..."
 cd $HOME
 if [ ! -d "Staging" ]; then 
 	mkdir Staging
@@ -19,10 +18,10 @@ fi
 
 cd "$HOME/Staging"
 
-echo "- Cloning"
+echo "- Cloning yay..."
 git clone "https://aur.archlinux.org/yay.git"
 cd "$HOME/Staging/yay"
-echo "- Installing"
+echo "- Making package and installing yay..."
 makepkg -sic --noconfirm
 
 if [ $? -eq 0 ]; then
@@ -52,19 +51,23 @@ if [ $? -eq 0 ]; then
 	'ocs-url' # install packages from websites
 	'the_silver_searcher' # fzf dependency
 	)
-	echo "- Done."
+	echo "- Done making package to install yay."
 	
-	echo "Installing AUR packages via yay..."
+	echo "- Installing AUR packages with yay..."
 	for PKG in "${PKGS[@]}"; do
 		yay -S --noconfirm $PKG
 	done
 	
-	echo "Cleaning yay stuffs..."
+	echo "- Yay cleanup..."
 	yay -Yc --noconfirm
 	
+echo "--------------------------------------"
+echo "User configurations"
+echo "--------------------------------------"
 	
-	mkdir -p /home/$(whoami)/.config/mpv
-	cat <<EOF >> /home/$(whoami)/.config/mpv/mpv.conf
+echo "Writing configuration for mpv..."
+mkdir -p /home/$(whoami)/.config/mpv
+cat <<EOF >> /home/$(whoami)/.config/mpv/mpv.conf
 vo=vdpau
 profile=opengl-hq
 hwdec=vdpau
@@ -75,16 +78,8 @@ interpolation
 tscale=oversample
 EOF
 
-	export PATH=$PATH:$HOME/.local/bin
-
-	echo "Installing Ungoogled Chromium..."
-	curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
-	cat <<EOF >> /etc/pacman.conf
-	[home_ungoogled_chromium_Arch]
-	SigLevel = Required TrustAll
-	Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch
-EOF
-	sudo pacman -Sy --noconfirm --needed ungoogled-chromium
+# ???
+#	export PATH=$PATH:$HOME/.local/bin
 else
 	echo "Sorry, looks like AUR user package installation failed with error code $?"
 fi
