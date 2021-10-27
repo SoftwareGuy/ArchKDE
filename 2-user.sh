@@ -46,8 +46,11 @@ if [ $? -eq 0 ]; then
 	'mangohud' # Gaming FPS Counter
 	'mangohud-common'
 	'vkbasalt'
+	# Game Dev
+	'unityhub'
 	# Tools
 	'timeshift-bin'
+	'barrier-bin'
 	'ocs-url' # install packages from websites
 	'the_silver_searcher' # fzf dependency
 	)
