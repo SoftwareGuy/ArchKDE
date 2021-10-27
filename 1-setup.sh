@@ -104,7 +104,7 @@ cat <<EOF >> /etc/pacman.conf
 SigLevel = Required TrustAll
 Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch
 EOF
-sudo pacman -Sy --noconfirm --needed ungoogled-chromium
+pacman -Sy --noconfirm --needed ungoogled-chromium
 
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
@@ -226,7 +226,13 @@ PKGS=(
 )
 
 echo "Asking pacman to synchronize before installing..."
-pacman -Sy 
+pacman -Sy
+LAST_ERRORCODE=$?
+if [ $LAST_ERRORCODE -ne 0 ]; then
+	echo "ERROR: Pacman failed to synchronize. Error code $LAST_ERRORCODE"
+	exit 1
+fi
+
 echo "Done."
 
 echo "Batch installing desired packages..."
