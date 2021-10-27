@@ -97,6 +97,15 @@ echo "- Importing Liquorix package signing key..."
 pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 9AE4078033F8024D
 pacman-key --lsign-key 9AE4078033F8024D
 
+echo "- Installing Ungoogled Chromium..."
+curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
+cat <<EOF >> /etc/pacman.conf
+[home_ungoogled_chromium_Arch]
+SigLevel = Required TrustAll
+Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch
+EOF
+sudo pacman -Sy --noconfirm --needed ungoogled-chromium
+
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
 echo "-------------------------------------------------"
