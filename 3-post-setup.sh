@@ -79,13 +79,6 @@ systemctl enable bluetooth.service
 echo "Enabling the cups service daemon so we can print..."
 systemctl enable cups.service
 
-# Moved to pre-install phase
-# sudo systemctl enable ntpd.service
-# sudo systemctl disable dhcpcd.service
-# sudo systemctl stop dhcpcd.service
-# NetworkManager already configured in pre-install phase
-# sudo systemctl enable NetworkManager.service
-
 echo "Setting up game mode..."
 systemctl --user enable gamemoded
 systemctl enable auto-cpufreq
