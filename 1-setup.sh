@@ -102,7 +102,7 @@ curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arc
 cat <<EOF >> /etc/pacman.conf
 [home_ungoogled_chromium_Arch]
 SigLevel = Required TrustAll
-Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch
+Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64
 EOF
 pacman -Sy --noconfirm --needed ungoogled-chromium
 
