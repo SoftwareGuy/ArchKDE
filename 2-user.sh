@@ -40,14 +40,13 @@ if [ $? -eq 0 ]; then
 	# Themes
 	'papirus-icon-theme'
 	'xcursor-we10xos'
+	'sddm-theme-redrock'	
 	# Gaming
 	'dxvk-bin' # DXVK DirectX to Vulcan
 	'goverlay'
 	'mangohud' # Gaming FPS Counter
 	'mangohud-common'
 	'vkbasalt'
-	# Game Dev
-	'unityhub'
 	# Tools
 	'timeshift-bin'
 	'barrier-bin'
