@@ -88,23 +88,13 @@ echo "- Enabling multilib support..."
 cat <<EOF >> /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
-
-[liquorix]
-Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 
 echo "- Importing Liquorix package signing key..."
 pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 9AE4078033F8024D
 pacman-key --lsign-key 9AE4078033F8024D
 
-echo "- Installing Ungoogled Chromium..."
-curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
-cat <<EOF >> /etc/pacman.conf
-[home_ungoogled_chromium_Arch]
-SigLevel = Required TrustAll
-Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64
-EOF
-pacman -Sy --noconfirm --needed ungoogled-chromium
+
 
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
@@ -138,6 +128,7 @@ PKGS=(
 'pulseaudio'
 'pulseaudio-alsa'
 'pulseaudio-bluetooth'
+'audacity'
 # Compression
 'ark'
 'rar'
@@ -220,9 +211,6 @@ PKGS=(
 'lib32-systemd'
 'wqy-zenhei'
 'packagekit'
-# Liquorix Kernel
-'linux-lqx'
-'linux-lqx-headers'
 )
 
 echo "Asking pacman to synchronize before installing..."
