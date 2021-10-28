@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Preinstallation phase begins..."
+echo "BEGIN: Preinstall phase"
 bash 0-preinstall.sh
 LAST_ERRORCODE=$?
 if [ $LAST_ERRORCODE -ne 0 ]; then
@@ -8,7 +8,7 @@ if [ $LAST_ERRORCODE -ne 0 ]; then
 	exit
 fi
 
-echo "Setup phase begins..."
+echo "BEGIN: Install phase"
 arch-chroot /mnt /root/bootstrap/1-setup.sh
 LAST_ERRORCODE=$?
 if [ $LAST_ERRORCODE -ne 0 ]; then
@@ -17,6 +17,7 @@ if [ $LAST_ERRORCODE -ne 0 ]; then
 	exit
 fi
 
+echo "BEGIN: User/AUR package installation phase"
 source /mnt/root/bootstrap/install.conf
 LAST_ERRORCODE=$?
 if [ $LAST_ERRORCODE -ne 0 ]; then
@@ -25,7 +26,6 @@ if [ $LAST_ERRORCODE -ne 0 ]; then
 	exit
 fi
 
-echo "User setup phase begins..."
 arch-chroot /mnt /usr/bin/runuser -u $username -- /home/$username/bootstrap/2-user.sh
 LAST_ERRORCODE=$?
 if [ $LAST_ERRORCODE -ne 0 ]; then
@@ -34,7 +34,7 @@ if [ $LAST_ERRORCODE -ne 0 ]; then
 	exit
 fi
 
-echo "Post setup phase begins..."
+echo "BEGIN: Post setup phase"
 arch-chroot /mnt /root/bootstrap/3-post-setup.sh
 LAST_ERRORCODE=$?
 if [ $LAST_ERRORCODE -ne 0 ]; then
@@ -43,6 +43,7 @@ if [ $LAST_ERRORCODE -ne 0 ]; then
 	exit
 fi
 
+echo "BEGIN: Clean up and unmount"
 swapoff -a
 umount -R /mnt
 LAST_ERRORCODE=$?

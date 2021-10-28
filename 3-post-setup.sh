@@ -11,37 +11,72 @@ echo "--------------------------------------"
 echo "Putting the finishing touches on the new install..."
 echo "--------------------------------------"
 
-# ------------------------------------------------------------------------
+echo "--------------------------------------"
+echo "Optional extra packages"
+echo "--------------------------------------"
 
-echo "Setting up X11..."
-# Generate the .xinitrc file so we can launch Awesome from the
-# terminal using the "startx" command
-cat <<EOF > ${HOME}/.xinitrc
-#!/bin/bash
-# Disable bell
-xset -b
+INSTALL_KERNEL=""
+INSTALL_UNITY_HUB=""
+INSTALL_CHROMIUM=""
 
-# Disable all Power Saving Stuff
-xset -dpms
-xset s off
+read -p "Would you like to install Liquorix kernel? (Y/N): " INSTALL_KERNEL
 
-# X Root window color
-xsetroot -solid darkgrey
-
-# Merge resources (optional)
-#xrdb -merge $HOME/.Xresources
-
-# Caps to Ctrl, no caps
-if [ -d /etc/X11/xinit/xinitrc.d ] ; then
-    for f in /etc/X11/xinit/xinitrc.d/?*.sh ; do
-        [ -x "\$f" ] && . "\$f"
-    done
-    unset f
-fi
-
-exit 0
+case $INSTALL_KERNEL in 
+  y|Y|yes|Yes|YES)
+	echo "OK, installing Liquorix kernel..."
+	cat <<EOF >> /etc/pacman.conf
+[liquorix]
+Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
+	pacman -Sy --noconfirm --needed linux-lqx linux-lqx-headers 
 
+  *)
+	echo "OK, won't install."
+	;;
+esac
+
+read -p "Would you like to install Unity Hub? (Y/N): " INSTALL_UNITY_HUB
+case $INSTALL_UNITY_HUB in 
+  y|Y|yes|Yes|YES)
+	echo "OK, installing Unity Hub..."
+	yay -S --noconfirm unityhub
+	
+	echo "Installing extra dependencies for Unity..."
+	pacman -Sy --needed --noconfirm desktop-file-utils gcc-libs glu gtk3 intel-tbb lib32-gcc-libs libgl libpng12 libpqxx libxtst npm nss xdg-utils jq
+#	Conflicts or something with an non-aur arch package?
+#	yay -S --noconfirm gconf-gtk2
+	
+  *)
+	echo "OK, won't install."
+	;;
+esac
+
+read -p "Would you like to install Ungoogled Chromium? (Y/N): " INSTALL_CHROMIUM
+case $INSTALL_CHROMIUM in 
+  y|Y|yes|Yes|YES)
+	echo "OK, install ungoogled Chromium..."
+echo "- Installing Ungoogled Chromium..."
+curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
+cat <<EOF >> /etc/pacman.conf
+[home_ungoogled_chromium_Arch]
+SigLevel = Required TrustAll
+Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64
+
+EOF
+	pacman -Sy --noconfirm --needed ungoogled-chromium
+	
+  *)
+	echo "OK, won't install."
+	;;
+esac
+
+echo "Cleaning up yay again..."
+yay -Yc --noconfirm
+
+# ------------------------------------------------------------------------
+echo "Configuring mkinitcpio..."
+sed -i 's/^HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block mdadm_udev lvm2 filesystems keyboard fsck)/' /etc/mkinitcpio.conf
+# ------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------
 
@@ -49,9 +84,6 @@ echo "Configuring console fonts..."
 sudo cat <<EOF >> /etc/vconsole.conf
 FONT=ter-v16b
 EOF
-
-# ------------------------------------------------------------------------
-
 echo "Increasing file watcher count..."
 # This prevents a "too many files" error in Visual Studio Code
 echo fs.inotify.max_user_watches=524288 | tee /etc/sysctl.d/40-max-user-watches.conf
@@ -67,6 +99,12 @@ sed -i 's|load-module module-esound-protocol-unix|#load-module module-esound-pro
 
 echo "Enabling SSDM..."
 systemctl enable sddm.service
+cat <<EOF >> /etc/sddm.conf.d/theme.conf
+[Theme]
+Current=redrock
+CursorTheme='We10XOS Cursors'
+EOF
+
 
 # ------------------------------------------------------------------------
 
@@ -111,9 +149,6 @@ echo "--------------------------------------"
 sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 # Add sudo rights
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
-
-# Replace in the same state
-cd $pwd
 
 echo "--------------------------------------"
 echo "Finalizing GRUB once again..."
