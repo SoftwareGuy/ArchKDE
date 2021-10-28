@@ -178,6 +178,7 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+echo "- Generating a fstab for the new system"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Done."
@@ -191,13 +192,13 @@ cat <<EOF > /mnt/etc/hosts
 127.0.1.1 $hostname.localdomain $hostname
 EOF
 echo $hostname > /mnt/etc/hostname
-
 echo "Done."
+
 echo "--------------------------------------"
 echo "(Pre-)Installing GRUB..."
 echo "--------------------------------------"
 arch-chroot /mnt pacman -S --noconfirm --needed grub os-prober 
-echo "NOTE: GRUB will be configured inside chroot."
+echo "- GRUB will be configured inside chroot."
 echo "Done."
 
 echo "--------------------------------------"
@@ -233,3 +234,4 @@ echo "--------------------------------------"
 echo "Arch Linux Base installation complete."
 echo "Ready to continue."
 echo "--------------------------------------"
+echo ""
