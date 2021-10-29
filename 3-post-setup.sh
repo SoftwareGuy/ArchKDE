@@ -101,8 +101,13 @@ sed -i 's|load-module module-esound-protocol-unix|#load-module module-esound-pro
 
 # ------------------------------------------------------------------------
 
-echo "Enabling SSDM..."
+echo "Enabling SDDM..."
 systemctl enable sddm.service
+if [ ! -d "/etc/sddm.conf.d" ];
+then
+	mkdir -p /etc/sddm.conf.d
+fi
+	
 cat <<EOF >> /etc/sddm.conf.d/theme.conf
 [Theme]
 Current=redrock
