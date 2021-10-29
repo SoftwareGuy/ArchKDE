@@ -112,6 +112,7 @@ PKGS=(
 'gnome-settings-daemon'
 'gsettings-desktop-schemas'
 'gsettings-qt'
+'libappindicator-gtk3'
 # Audio
 'alsa-plugins'
 'alsa-utils'
