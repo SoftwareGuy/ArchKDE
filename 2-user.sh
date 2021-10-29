@@ -73,6 +73,25 @@ if [ $? -eq 0 ]; then
 		yay -S --noconfirm $PKG
 	done
 	
+	# The following was moved from post-setup since makepkg complains about root being super damaging or something idk	
+	INSTALL_UNITY_HUB=""
+	read -p "Would you like to install Unity Hub? (Y/N): " INSTALL_UNITY_HUB
+case $INSTALL_UNITY_HUB in 
+  y|Y|yes|Yes|YES)
+	echo "OK, installing Unity Hub..."
+	yay -S --noconfirm unityhub
+	
+	echo "Installing extra dependencies for Unity..."
+	pacman -Sy --needed --noconfirm desktop-file-utils gcc-libs glu gtk3 intel-tbb lib32-gcc-libs libgl libpng12 libpqxx libxtst npm nss xdg-utils jq
+#	Conflicts or something with an non-aur arch package?
+#	yay -S --noconfirm gconf-gtk2
+	;;
+	
+  *)
+	echo "OK, won't install."
+	;;
+esac
+	
 	echo "- Yay cleanup..."
 	yay -Yc --noconfirm
 	

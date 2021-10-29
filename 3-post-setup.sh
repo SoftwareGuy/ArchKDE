@@ -16,7 +16,6 @@ echo "Optional extra packages"
 echo "--------------------------------------"
 
 INSTALL_KERNEL=""
-INSTALL_UNITY_HUB=""
 INSTALL_CHROMIUM=""
 INSTALL_OBS=""
 
@@ -30,23 +29,6 @@ Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 	pacman -Sy --noconfirm --needed linux-lqx linux-lqx-headers 
 	;;
-  *)
-	echo "OK, won't install."
-	;;
-esac
-
-read -p "Would you like to install Unity Hub? (Y/N): " INSTALL_UNITY_HUB
-case $INSTALL_UNITY_HUB in 
-  y|Y|yes|Yes|YES)
-	echo "OK, installing Unity Hub..."
-	yay -S --noconfirm unityhub
-	
-	echo "Installing extra dependencies for Unity..."
-	pacman -Sy --needed --noconfirm desktop-file-utils gcc-libs glu gtk3 intel-tbb lib32-gcc-libs libgl libpng12 libpqxx libxtst npm nss xdg-utils jq
-#	Conflicts or something with an non-aur arch package?
-#	yay -S --noconfirm gconf-gtk2
-	;;
-	
   *)
 	echo "OK, won't install."
 	;;
