@@ -112,10 +112,6 @@ PKGS=(
 'gnome-settings-daemon'
 'gsettings-desktop-schemas'
 'gsettings-qt'
-# KDE apparently already pulls this stuff in.
-# 'drkonqi'
-# 'breeze'
-# 'breeze-gtk'
 # Audio
 'alsa-plugins'
 'alsa-utils'
@@ -144,7 +140,7 @@ PKGS=(
 'bash-completion'
 'neofetch'
 'openbsd-netcat'
-# BlueTooth
+# Bluetooth
 'bluedevil'
 'bluez'
 'bluez-libs'
@@ -160,13 +156,14 @@ PKGS=(
 'gst-libav'
 'gst-plugins-good'
 'gst-plugins-ugly'
+'ffmpeg'
 # Office
 'libreoffice-still'
 # Printing
 'cups'
 'print-manager'
 'system-config-printer'
-# QEMU Emulation
+# Emulation
 'fuseiso'
 'edk2-ovmf'
 'libvirt'
@@ -184,6 +181,12 @@ PKGS=(
 'wine-gecko'
 'wine-mono'
 'winetricks'
+# Internet
+'thunderbird'
+'firefox'
+'bitwarden'
+'filezilla'
+'youtube-dl'
 # Photo Editing
 'gimp'
 # Disks
@@ -205,7 +208,7 @@ PKGS=(
 'zsh-autosuggestions'
 'zeroconf-ioslave'
 'lib32-systemd'
-'wqy-zenhei'
+'wqy-zenhei'	# For Steam
 'packagekit'
 )
 
