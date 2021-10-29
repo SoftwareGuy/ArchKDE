@@ -18,9 +18,9 @@ echo "--------------------------------------"
 INSTALL_KERNEL=""
 INSTALL_UNITY_HUB=""
 INSTALL_CHROMIUM=""
+INSTALL_OBS=""
 
 read -p "Would you like to install Liquorix kernel? (Y/N): " INSTALL_KERNEL
-
 case $INSTALL_KERNEL in 
   y|Y|yes|Yes|YES)
 	echo "OK, installing Liquorix kernel..."
@@ -29,7 +29,7 @@ case $INSTALL_KERNEL in
 Server = https://liquorix.net/archlinux/liquorix/x86_64
 EOF
 	pacman -Sy --noconfirm --needed linux-lqx linux-lqx-headers 
-
+	;;
   *)
 	echo "OK, won't install."
 	;;
@@ -45,6 +45,7 @@ case $INSTALL_UNITY_HUB in
 	pacman -Sy --needed --noconfirm desktop-file-utils gcc-libs glu gtk3 intel-tbb lib32-gcc-libs libgl libpng12 libpqxx libxtst npm nss xdg-utils jq
 #	Conflicts or something with an non-aur arch package?
 #	yay -S --noconfirm gconf-gtk2
+	;;
 	
   *)
 	echo "OK, won't install."
@@ -54,18 +55,39 @@ esac
 read -p "Would you like to install Ungoogled Chromium? (Y/N): " INSTALL_CHROMIUM
 case $INSTALL_CHROMIUM in 
   y|Y|yes|Yes|YES)
-	echo "OK, install ungoogled Chromium..."
-echo "- Installing Ungoogled Chromium..."
-curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
-cat <<EOF >> /etc/pacman.conf
+	echo "OK, installing ungoogled Chromium..."
+	curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | sudo pacman-key -a -
+	cat <<EOF >> /etc/pacman.conf
 [home_ungoogled_chromium_Arch]
 SigLevel = Required TrustAll
 Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64
 
 EOF
 	pacman -Sy --noconfirm --needed ungoogled-chromium
-	
+	;;
   *)
+	echo "OK, won't install."
+	;;
+esac
+
+read -p "Would you like to install OBS Studio? (Y/N): " INSTALL_OBS
+case $INSTALL_OBS in 
+  y|Y|yes|Yes|YES)
+	echo "Enabling the chaotic AUR repository..."
+	echo "- Getting keys..."
+	pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+	pacman-key --lsign-key 3056513887B78AEB
+	pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+	cat <<EOF >> /etc/pacman.conf
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+
+EOF
+	echo "- Installing the package"
+	pacman -Sy obs-studio-git
+	;;
+	
+	*)
 	echo "OK, won't install."
 	;;
 esac

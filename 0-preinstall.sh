@@ -12,13 +12,17 @@ PARTBASE=""
 
 setfont ter-v22b
 
+echo "Welcome to the automated installation script!"
+echo ""
+
 # setup hostname and username
 read -p "What is the hostname of this device? " hostname
 read -p "What is the username you wish to use? " username
-printf "hostname="$hostname"\n" >> "install.conf"
-printf "username="$username"\n" >> "install.conf"
+
 export hostname=$hostname
 export username=$username
+
+printf "hostname="$hostname"\nusername="$username"\n" >> "install.conf"
 
 echo "Got it! One fresh copy of Arch Linux with KDE coming right up!"
 
@@ -159,6 +163,7 @@ EOF
 	
 	# Turn swap on or we may have shit break.
 	swapon "${PARTBASE}3"
+	sysctl -w vm.swappiness=10
     ;;
 
   *)
@@ -172,7 +177,7 @@ echo "--------------------------------------"
 echo "Installing the base system..."
 echo "--------------------------------------"
 # Coburn's note: this is messy, but fuck it.
-pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft dnsmasq earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
+pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
 if [ $? -ne 0 ]; then
 	echo "ERROR: Pacstrap failure code $?"
 	exit 1
@@ -204,12 +209,13 @@ echo "Done."
 echo "--------------------------------------"
 echo "Preconfiguring some services..."
 echo "--------------------------------------"
+arch-chroot /mnt /usr/bin/systemctl enable sshd
 arch-chroot /mnt /usr/bin/systemctl enable NetworkManager
 arch-chroot /mnt /usr/bin/systemctl enable ModemManager
 arch-chroot /mnt /usr/bin/systemctl enable cronie
 arch-chroot /mnt /usr/bin/systemctl enable rngd
-arch-chroot /mnt /usr/bin/systemctl enable earlyoom
 arch-chroot /mnt /usr/bin/systemctl enable ntpd
+arch-chroot /mnt /usr/bin/systemctl enable earlyoom
 arch-chroot /mnt /usr/bin/systemctl enable avahi-daemon
 arch-chroot /mnt /usr/bin/systemctl stop dhcpcd
 arch-chroot /mnt /usr/bin/systemctl disable dhcpcd
@@ -231,7 +237,7 @@ cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 echo "Done."
 
 echo "--------------------------------------"
-echo "Arch Linux Base installation complete."
+echo "Arch Linux base installation complete."
 echo "Ready to continue."
 echo "--------------------------------------"
 echo ""

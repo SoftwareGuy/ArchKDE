@@ -25,9 +25,22 @@ echo "- Making package and installing yay..."
 makepkg -sic --noconfirm
 
 if [ $? -eq 0 ]; then
+	echo "- Done making package to install yay."
+	
 	PKGS=(
+	# Kernel tweaking
 	'ananicy-git'
 	'auto-cpufreq'
+	# Instant Messaging
+	'discord_arch_electron'
+	'betterdiscord-installer'
+	# Development
+	'visual-studio-code-bin'
+	'dotnet-host-bin'
+	'dotnet-runtime-bin'
+	'dotnet-runtime-3.1-bin'
+	'dotnet-sdk-bin'
+	'dotnet-sdk-lts-bin'
 	# Fonts
 	'nerd-fonts-fira-code'
 	'noto-fonts-emoji'
@@ -53,8 +66,7 @@ if [ $? -eq 0 ]; then
 	'ocs-url' # install packages from websites
 	'the_silver_searcher' # fzf dependency
 	)
-	echo "- Done making package to install yay."
-	
+		
 	echo "- Installing AUR packages with yay..."
 	for PKG in "${PKGS[@]}"; do
 		yay -S --noconfirm $PKG
@@ -80,8 +92,6 @@ interpolation
 tscale=oversample
 EOF
 
-# ???
-#	export PATH=$PATH:$HOME/.local/bin
 else
 	echo "Sorry, looks like AUR user package installation failed with error code $?"
 fi

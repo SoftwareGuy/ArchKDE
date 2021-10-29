@@ -14,7 +14,7 @@ grub-install --target=x86_64-efi --efi-directory=/efi
 echo "--------------------------------------"
 echo "Installing Network..."
 echo "--------------------------------------"
-pacman --noconfirm --needed -S networkmanager modemmanager usbutils usb_modeswitch dhclient 
+pacman --noconfirm --needed -S networkmanager modemmanager usbutils usb_modeswitch dhclient dnsmasq
 systemctl enable NetworkManager
 
 echo "--------------------------------------"
@@ -24,15 +24,16 @@ echo "Enter password for root user: "
 passwd root
 
 if ! source /root/bootstrap/install.conf; then
-	echo "WARNING: Could not source install.conf... What happened?"
-	
-	read -p "What is the hostname of this device? " hostname
-	read -p "What is the username you wish to use? " username
+echo "WARNING: Could not source install.conf... What happened?"
 
-  printf "hostname="$hostname"\n" >> "install.conf"
-  printf "username="$username"\n" >> "install.conf"
-  export hostname=$hostname
-  export username=$username
+read -p "What is the hostname of this device? " hostname
+read -p "What is the username you wish to use? " username
+
+export hostname=$hostname
+export username=$username
+
+printf "hostname="$hostname"\nusername="$username"\n" >> "install.conf"
+
 fi
 
 echo "-------------------------------------------------"
@@ -89,12 +90,6 @@ cat <<EOF >> /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 EOF
-
-echo "- Importing Liquorix package signing key..."
-pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 9AE4078033F8024D
-pacman-key --lsign-key 9AE4078033F8024D
-
-
 
 echo "-------------------------------------------------"
 echo "Installing additional packages..."
@@ -154,7 +149,7 @@ PKGS=(
 'bluez'
 'bluez-libs'
 # Development
-'code'
+# 'code' # - probably better to use the official version?
 'jdk-openjdk'
 'libtool'
 'python-pip'
@@ -264,13 +259,18 @@ elif lspci | grep -E "Radeon"; then
 	echo " - Detected AMD Radeon GPU!"
     pacman --needed --noconfirm -S xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
 elif lspci | grep -E "Integrated Graphics Controller"; then
-	echo "- Detected Integrated (Intel?) Graphics Processor!"
-    pacman --needed --noconfirm -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils 
+	echo "- Detected (Intel?) Integrated Graphics Processor!"
+    pacman --needed --noconfirm -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel
 fi
-echo "GPU detection complete."
+
+echo "- Installing Libva Driver for Mesa..."
+pacman --needed --noconfirm -S libva-mesa-driver
 
 echo "Installing Vulkan support for GPU."
 pacman --noconfirm --needed -S vulkan-icd-loader lib32-vulkan-icd-loader vulkan-tools
+
+echo "GPU detection and driver installation completed!"
+
 
 echo "Performing environment tweaks..."
 echo "GTK_USE_PORTAL=1" >> /etc/environment
