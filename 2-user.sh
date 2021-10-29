@@ -37,9 +37,7 @@ if [ $? -eq 0 ]; then
 	'visual-studio-code-bin'
 	'dotnet-host-bin'
 	'dotnet-runtime-bin'
-	'dotnet-runtime-3.1-bin'
 	'dotnet-sdk-bin'
-	'dotnet-sdk-lts-bin'
 	# Fonts
 	'nerd-fonts-fira-code'
 	'noto-fonts-emoji'
