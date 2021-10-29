@@ -34,10 +34,11 @@ iso="au" # set the mirrorlist for Australia
 echo "Setting the clock with NTP ..."
 timedatectl set-ntp true
 
-
 echo "Setting up pacman mirror lists..."
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector -c $iso -l 5 --sort rate --save /etc/pacman.d/mirrorlist
+
+echo "Preparing disks..."
 if [ ! -d /mnt ]; then 
 	mkdir /mnt
 fi
@@ -70,7 +71,7 @@ case $this_is_nvme in
 	;;
 esac
 
-echo "WARNING: THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK!!"
+echo "WARNING: THIS WILL FORMAT $DISK AND DELETE ALL DATA ON THE TARGET!!"
 read -p "Take a deep breath. Are you really sure you want to continue? (Y/N):" formatdisk
 
 case $formatdisk in 
@@ -86,35 +87,34 @@ case $formatdisk in
     sfdisk --delete $DISK # delete all partitions
 
     # make filesystems
-	echo "--------------------------------------"
+    echo "--------------------------------------"
     echo "Partitioning $DISK"
     echo "--------------------------------------"
 
     # Create a GPT partition table, that has a 64MB EFI Partition,
-	# 512MB Boot Partition, 4GB Swap and the rest allocated to Linux.
+    # 512MB Boot Partition, 4GB Swap and the rest allocated to Linux.
     fdisk $DISK << EOF
 g
 n
 1
-
 +64M
 t
 1
-1
+
 n
 2
-
 +512M
 t
 2
 20
+
 n
 3
-
 +4096M
 t
 3
 19
+
 n
 4
 
@@ -122,21 +122,42 @@ n
 w
 EOF
 
-	echo "--------------------------------------"
-    echo "Formatting partitions..."
     echo "--------------------------------------"
-	
+    echo "Formatting partitions..."
+    echo "--------------------------------------"	
+    
 	# Format EFI Boot partition.
 	mkfs.vfat -v -F32 -n EFISystem "${PARTBASE}1"
 	
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Formatting EFI Boot partition returned an error. Aborting."
+        exit 1
+    fi
+    
 	# Format the GRUB Boot partition.
 	mkfs.ext4 -m0 -L BootFS "${PARTBASE}2"
-	
+
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Formatting Boot partition returned an error. Aborting."
+        exit 1
+    fi
+
+
 	# Format the swap partition.
 	mkswap --verbose "${PARTBASE}3"
-	
+	    
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Formatting swap partition returned an error. Aborting."
+        exit 1
+    fi
+
     # just in case format the partition to linux
     mkfs.ext4 -m1 -L RootFS "${PARTBASE}4"
+    
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Formatting System root partition returned an error. Aborting."
+        exit 1
+    fi
 
 	echo "--------------------------------------"
     echo "Mounting partitions..."
@@ -148,11 +169,21 @@ EOF
 	fi	
 	mount "${PARTBASE}4" /mnt
 	
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Mounting System root partition returned an error. Aborting."
+        exit 1
+    fi
+    
 	# EFI is partition 1
 	if [ ! -d /mnt/efi ]; then 
 		mkdir /mnt/efi
 	fi
 	mount "${PARTBASE}1" /mnt/efi
+    
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Mounting EFI Boot partition returned an error. Aborting."
+        exit 1
+    fi    
 	
 	# BootFS is partition 2
 	if [ ! -d /mnt/boot ]; then 
@@ -161,8 +192,19 @@ EOF
 	
 	mount "${PARTBASE}2" /mnt/boot
 	
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Mounting Boot partition returned an error. Aborting."
+        exit 1
+    fi
+    
 	# Turn swap on or we may have shit break.
 	swapon "${PARTBASE}3"
+    
+    if [ $? -ne 0 ]; then 
+        echo "ERROR: Enabling swap partition returned an error. Aborting."
+        exit 1
+    fi
+    
 	sysctl -w vm.swappiness=10
     ;;
 
@@ -177,7 +219,11 @@ echo "--------------------------------------"
 echo "Installing the base system..."
 echo "--------------------------------------"
 # Coburn's note: this is messy, but fuck it.
-pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
+pacstrap /mnt archlinux-keyring base base-devel man man-db m4 bind bison cronie dialog dkms dhcpcd linux linux-headers linux-firmware sof-firmware git \
+rng-tools hdparm binutils btrfs-progs gptfdisk dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs \
+vim nano htop bashtop iftop iotop vde2 lvm2 mdadm lzop bridge-utils iptables-nft earlyoom sudo efibootmgr dmidecode networkmanager modemmanager usbutils \
+usb_modeswitch pciutils openssh pkgconf rsync lsof wget libnewt ntp ufw nss-mdns
+
 if [ $? -ne 0 ]; then
 	echo "ERROR: Pacstrap failure code $?"
 	exit 1
@@ -185,6 +231,11 @@ fi
 
 echo "- Generating a fstab for the new system"
 genfstab -U /mnt >> /mnt/etc/fstab
+
+if [ $? -ne 0 ]; then
+	echo "ERROR: Genfstab failure code $?"
+	exit 1
+fi
 
 echo "Done."
 
