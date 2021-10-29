@@ -178,6 +178,7 @@ PKGS=(
 'gamemode'
 'lutris'
 'steam'
+'discord'
 # WINE
 'wine-staging'
 'wine-gecko'

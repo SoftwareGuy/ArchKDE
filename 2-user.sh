@@ -32,7 +32,6 @@ if [ $? -eq 0 ]; then
 	'ananicy-git'
 	'auto-cpufreq'
 	# Instant Messaging
-	'discord_arch_electron'
 	'betterdiscord-installer'
 	# Development
 	'visual-studio-code-bin'
