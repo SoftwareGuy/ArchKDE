@@ -45,7 +45,7 @@ SigLevel = Required TrustAll
 Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64
 
 EOF
-	pacman -Sy --noconfirm --needed ungoogled-chromium
+	pacman -Sy --noconfirm --needed gnome-keyring ungoogled-chromium 
 	;;
   *)
 	echo "OK, won't install."
@@ -66,7 +66,7 @@ Include = /etc/pacman.d/chaotic-mirrorlist
 
 EOF
 	echo "- Installing the package"
-	pacman -Sy obs-studio-git
+	pacman -Sy --noconfirm --needed obs-studio-git
 	;;
 	
 	*)
