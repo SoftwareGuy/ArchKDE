@@ -50,6 +50,7 @@ if [ $? -eq 0 ]; then
 	'ttf-roboto'
 	'ttf-dejavu'
 	'ttf-liberation'
+	'ttf-ms-fonts' # used for some windows application stuffs
 	# Themes
 	'papirus-icon-theme'
 	'xcursor-we10xos'
@@ -66,7 +67,7 @@ if [ $? -eq 0 ]; then
 	'ocs-url' # install packages from websites
 	'the_silver_searcher' # fzf dependency
 	)
-		
+
 	echo "- Installing AUR packages with yay..."
 	for PKG in "${PKGS[@]}"; do
 		yay -S --noconfirm $PKG
